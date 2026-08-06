@@ -16,6 +16,7 @@ import {
     ShieldCheck,
     ShoppingBag,
     Sparkles,
+    UserCog,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -32,6 +33,7 @@ import {
     SidebarSeparator,
 } from '@/components/ui/sidebar';
 import {
+    hasAnyPermission,
     isManagerRole,
     isStaffRole,
     isSuperAdminRole,
@@ -127,6 +129,10 @@ const adminNavItems: NavItem[] = [
     { title: 'Forum komunitas', href: '/forum', icon: ShieldCheck },
 ];
 
+const accessNavItems: NavItem[] = [
+    { title: 'Manajemen akses', href: '/admin/akses', icon: UserCog },
+];
+
 // Konten publik hanya boleh disentuh super admin, jadi menunya berdiri
 // terpisah dari grup pengelolaan agar tidak terlihat oleh pengelola wilayah.
 const superAdminNavItems: NavItem[] = [
@@ -165,7 +171,23 @@ export function AppSidebar() {
 
     const taken = new Set(mainNavItems.map((item) => toUrl(item.href)));
     const staffItems = isStaff ? withoutDuplicates(staffNavItems, taken) : [];
-    const adminItems = isManager ? withoutDuplicates(adminNavItems, taken) : [];
+    const adminItems = isManager
+        ? withoutDuplicates(
+              [
+                  ...adminNavItems,
+                  // Panel akses dibaca dari permission, bukan role, karena
+                  // susunan permission tiap role dapat diubah dari panel itu
+                  // sendiri.
+                  ...(hasAnyPermission(auth.user, [
+                      'users.manage',
+                      'roles.manage',
+                  ])
+                      ? accessNavItems
+                      : []),
+              ],
+              taken,
+          )
+        : [];
     const superAdminItems = isSuperAdmin
         ? withoutDuplicates(superAdminNavItems, taken)
         : [];

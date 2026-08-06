@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\RoleName;
 use App\Models\AuditLog;
+use App\Models\Region;
 use App\Models\RegionUserAssignment;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -11,10 +12,100 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Inertia\Response;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class AdminAccessController extends Controller
 {
+    /**
+     * Panel kewenangan: role pengguna, penugasan wilayah, dan permission tiap
+     * role. Sebelumnya ketiga endpoint di kelas ini hanya dapat dipanggil
+     * dengan merakit request sendiri, sehingga pengelolaan akses tidak dapat
+     * dilakukan lewat aplikasi.
+     */
+    public function index(Request $request): Response
+    {
+        $actor = $request->user();
+        $isSuperAdmin = $actor->hasRole(RoleName::SuperAdmin->value);
+        $abilities = [
+            'manageUsers' => (bool) $actor->can('users.manage'),
+            'manageRoles' => (bool) $actor->can('roles.manage'),
+            // Penugasan wilayah menuntut ketiganya sekaligus, sama seperti
+            // middleware pada route-nya.
+            'manageRegionAssignments' => $isSuperAdmin
+                && $actor->can('users.manage')
+                && $actor->can('regions.manage'),
+        ];
+
+        abort_unless($abilities['manageUsers'] || $abilities['manageRoles'], 403);
+
+        $regionIds = $isSuperAdmin ? null : $actor->accessibleRegionIds();
+
+        $users = User::query()
+            ->with([
+                'roles:id,name',
+                'profile:id,user_id,primary_region_id',
+                'regionAssignments.region:id,name,level',
+            ])
+            ->whereNull('anonymized_at')
+            ->when($regionIds !== null, fn ($query) => $query->whereHas(
+                'profile',
+                fn ($profile) => $profile->whereIn('primary_region_id', $regionIds),
+            ))
+            ->orderBy('name')
+            ->limit(200)
+            ->get()
+            ->map(fn (User $user): array => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->getRoleNames()->first(),
+                'assignments' => $user->regionAssignments
+                    ->map(fn (RegionUserAssignment $assignment): array => [
+                        'id' => $assignment->id,
+                        'region' => $assignment->region?->name,
+                        'level' => $assignment->region?->level->value,
+                        'type' => $assignment->assignment_type,
+                        'is_active' => (bool) $assignment->is_active,
+                    ])
+                    ->values()
+                    ->all(),
+            ]);
+
+        $roles = Role::query()
+            ->with('permissions:id,name')
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Role $role): array => [
+                'id' => $role->id,
+                'name' => $role->name,
+                // Permission super admin bersifat tetap; UI menandainya
+                // terkunci agar tidak terlihat seperti dapat disunting.
+                'locked' => $role->name === RoleName::SuperAdmin->value,
+                'permissions' => $role->permissions->pluck('name')->sort()->values(),
+            ]);
+
+        return Inertia::render('admin/access', [
+            'abilities' => $abilities,
+            'users' => $users,
+            'roles' => $roles,
+            'permissions' => Permission::query()
+                ->orderBy('name')
+                ->pluck('name'),
+            'assignableRoles' => array_map(
+                static fn (RoleName $role): string => $role->value,
+                RoleName::cases(),
+            ),
+            'assignmentTypes' => [RoleName::Officer->value, RoleName::ProgramManager->value],
+            'regions' => Region::query()
+                ->where('is_active', true)
+                ->orderBy('code')
+                ->get(['id', 'name', 'level', 'code']),
+        ]);
+    }
+
     public function storeRegionAssignment(Request $request, User $user): RedirectResponse
     {
         $actor = $this->authorizeRegionManagement($request);

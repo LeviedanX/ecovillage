@@ -80,7 +80,9 @@ test('panel admin tetap responsif dan bebas error pada seluruh viewport', async 
     await page.getByLabel('Alamat email').fill('admin@gmail.com');
     await page.getByLabel('Kata sandi', { exact: true }).fill('password');
     await page.getByRole('button', { name: 'Masuk', exact: true }).click();
-    await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/);
+    // Server pengembangan melayani permintaan satu per satu; ambang bawaan
+    // lima detik membuat suite gagal karena beban mesin, bukan karena cacat.
+    await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 30_000 });
 
     for (const viewport of viewports) {
         await page.setViewportSize(viewport);
@@ -88,6 +90,7 @@ test('panel admin tetap responsif dan bebas error pada seluruh viewport', async 
         for (const path of [
             '/admin/operations',
             '/admin/master-data',
+            '/admin/akses',
             '/operasional/pengumpulan',
             '/notifikasi',
             '/pencarian?q=Eco',

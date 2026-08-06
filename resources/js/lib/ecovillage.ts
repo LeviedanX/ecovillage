@@ -114,6 +114,20 @@ export function isSuperAdminRole(roles: string[]) {
     return roles.includes('super-admin');
 }
 
+/**
+ * Menu yang bergantung pada permission harus dibaca dari permission, bukan
+ * dari role. Permission tiap role dapat diubah lewat panel manajemen akses,
+ * sehingga menebak dari nama role akan salah begitu susunannya disesuaikan.
+ */
+export function hasAnyPermission(
+    user: { permissions?: string[] } | null | undefined,
+    wanted: string[],
+) {
+    const owned = user?.permissions ?? [];
+
+    return wanted.some((permission) => owned.includes(permission));
+}
+
 // Diurutkan dari wewenang tertinggi supaya identitas yang ditampilkan pada
 // sidebar selalu role paling menentukan, bukan yang kebetulan terdaftar duluan.
 const roleLabels: Array<[string, string]> = [

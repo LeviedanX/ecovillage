@@ -15,11 +15,11 @@ Dokumen ini membedakan keberadaan source, validasi otomatis, dan QA browser. Tan
 
 - ✅ Fondasi modern monolith, dependency/lockfile, schema domain, role/permission, seed sintetis berpagar, environment, Docker source, dan seluruh dokumen wajib tersedia.
 - ✅ Migration + role/demo seed berhasil dari nol pada MySQL 8.4, engine yang sama dengan production.
-- ✅ Backend warga dan operasional tersedia untuk pengumpulan, penimbangan, B3 guard, verifikasi atomik, Green Points/Estimasi Dampak, program, forum, dan marketplace. Seluruh 126 test lulus pada MySQL (929 assertion).
+- ✅ Backend warga dan operasional tersedia untuk pengumpulan, penimbangan, B3 guard, verifikasi atomik, Green Points/Estimasi Dampak, program, forum, dan marketplace. Seluruh 165 test lulus pada MySQL (1071 assertion).
 - ✅ Kalkulasi dampak authoritative menggunakan `Brick\Math\BigDecimal` dengan scale/rounding eksplisit; golden decimal, mismatch weight, dan idempotency diuji.
 - ✅ PWA production build menghasilkan manifest dan `public/build/sw.js`; service worker memakai `NetworkOnly` untuk route sensitif dan hanya cache edukasi anonim yang ditandai server.
-- 🟡 UI warga/public cukup luas, tetapi UI operasional petugas/pengelola dan admin management belum mengekspos seluruh endpoint/use case backend secara utuh.
-- ✅ Quality gate bersih: PHPUnit (153/153), Playwright (19/19), TypeScript, ESLint, Prettier, Pint, dan PHPStan seluruhnya lulus.
+- ✅ Setiap endpoint aplikasi memiliki jalur UI. Diverifikasi dengan membandingkan `route:list` terhadap bundle produksi; dua pengecualian sah adalah discovery passkey yang dipanggil peramban dan foto pengumpulan yang diakses lewat signed URL.
+- ✅ Quality gate bersih: PHPUnit (165/165), Playwright (19/19), TypeScript, ESLint, Prettier, Pint, dan PHPStan seluruhnya lulus.
 - ✅ Pemulihan kata sandi, terjemahan pesan bahasa Indonesia, trusted proxy, dan konsistensi batas unggahan ditambahkan pada audit 6 Agustus 2026; rinciannya ada pada tabel temuan di bawah.
 - ✅ Lima gap go-live ditutup pada hari yang sama: kemandirian alur dari layanan email, gerbang konfigurasi production, CSP ber-nonce, registrasi anti-enumerasi, serta validasi konfigurasi deployment dan QA aksesibilitas terotomasi.
 - ⚪ Eksekusi Docker/Nginx pada engine sungguhan, uji pembaca layar, staging, dan hosting live belum diverifikasi.
@@ -56,7 +56,7 @@ Tidak ada faktor ilmiah, alamat warga nyata, atau detail sketsa yang dikarang un
 - [x] Guard B3 menolak pickup umum tanpa mitra; pickup/verifikasi B3 memerlukan permission khusus dan kontak resmi berasal dari config.
 - [x] Verifikasi menjalankan transaction, lock, exact weight matching, factor/rule selection, impact snapshot, point ledger, two-step history (`verified` lalu `completed`), assignment close, dan audit.
 - [x] Test submission ownership, B3 rejection, verifikasi idempotent, decimal golden values, invalid payload, dan regional authorization lulus pada MySQL.
-- [ ] UI operasi masih memakai page list warga dan belum menyediakan kontrol assignment/pickup/weigh/verify/reject yang lengkap; endpoint backend belum cukup untuk menyatakan alur petugas end-to-end selesai.
+- [x] Halaman detail pengumpulan menyediakan kontrol penugasan, `picked_up`, penimbangan, verifikasi, penolakan, dan pembatalan sesuai kewenangan serta status. Alur petugas end-to-end dijalankan Playwright pada `core-flow.spec.ts`.
 - [ ] Seluruh edge state machine, upload adversarial, duplicate request number, database deadlock/race, dan MySQL row locking belum diuji.
 - [ ] Browser QA form/map/timeline/upload/operational flow desktop-mobile belum dijalankan.
 
@@ -79,7 +79,7 @@ Tidak ada faktor ilmiah, alamat warga nyata, atau detail sketsa yang dikarang un
 - [x] Internal map mengirim titik tepat hanya untuk request aktif dan dibatasi permission assignment/wilayah.
 - [x] Kolom koordinat desimal EPSG:4326 tersedia pada migration MySQL.
 - [ ] Privacy response test belum membuktikan tidak ada titik/identifier mentah pada seluruh kombinasi filter/export; differencing dan threshold masih perlu review data nyata.
-- [ ] CMS pengelola untuk membuat/edit/publish materi edukasi belum tersedia sebagai workflow UI lengkap.
+- [x] CMS materi edukasi tersedia pada panel master data, termasuk kategori, pembuatan, penyuntingan, dan status publikasi.
 - [ ] Query plan, N+1, agregasi peta, dan performa data besar belum diuji.
 
 ## Fase 5 — Program dan marketplace
@@ -90,7 +90,7 @@ Tidak ada faktor ilmiah, alamat warga nyata, atau detail sketsa yang dikarang un
 - [x] Test redemption sukses/idempotent serta rollback saldo-stok-ledger lulus pada MySQL.
 - [x] Endpoint pengelola dapat memproses `pending → processing → ready → completed`.
 - [ ] CRUD pengelola untuk program/sesi/materi/dokumentasi/kehadiran serta produk/image/stok belum tersedia sebagai UI end-to-end.
-- [ ] Status `cancelled` sudah ada di enum, tetapi reversal poin+restock untuk pembatalan redemption belum diimplementasikan/diuji.
+- [x] Pembatalan redemption mengembalikan poin lewat reversal ledger dan memulihkan stok dalam satu transaction, bersifat idempotent, dan tercatat pada audit log. Dipakai dari panel master data melalui status `cancelled`; diuji `RedemptionServiceTest`.
 - [ ] Race redemption dan deadlock retry belum diuji di bawah beban paralel.
 
 ## Fase 6 — Forum dan administrasi
@@ -99,7 +99,8 @@ Tidak ada faktor ilmiah, alamat warga nyata, atau detail sketsa yang dikarang un
 - [x] UI forum dapat membaca, membuat thread, membalas, dan melapor sesuai visibility wilayah/program.
 - [x] Backend admin menyediakan moderasi thread/post, penyelesaian report, point adjust/reversal, role assignment, site setting update, dan CSV export scoped+formula-injection guard.
 - [x] Dashboard berbasis role, statistik database, tren, low stock, moderation count, dan recent audit tersedia.
-- [ ] UI admin masih dominan dashboard; CRUD user/role/permission/region/waste/factor/education/program/product/site content dan kontrol moderasi belum lengkap.
+- [x] Seluruh endpoint aplikasi kini memiliki jalur UI. Diverifikasi dengan membandingkan `route:list` terhadap bundle produksi: hanya dua route yang tidak muncul, yaitu discovery passkey yang dipanggil peramban dan route foto pengumpulan yang diakses lewat signed URL dari props.
+- [x] Panel manajemen akses (`/admin/akses`) mengekspos role pengguna, penugasan wilayah, dan permission per role; ketiga endpoint `AdminAccessController` sebelumnya hanya dapat dipanggil dengan merakit request sendiri.
 - [ ] Coverage policy/audit/export/admin action masih terbatas; PHPStan juga mendeteksi masalah typing pada AdminController yang harus ditriase.
 - [ ] Notification delivery, retention/anonymization audit, dan larangan delete ledger/audit belum diuji menyeluruh.
 
@@ -125,14 +126,15 @@ Dijalankan ulang seluruhnya pada 6 Agustus 2026, PHP 8.4.10 dan Node 22.17.0, te
 | `composer validate --strict` | ✅ PASS | Composer schema/lock konsisten pada saat cek |
 | `php artisan route:list` | ✅ PASS | Laravel bootstrap dan route registration; bukan request/browser QA |
 | `php artisan migrate:fresh --seed --force` | ✅ PASS | seluruh migration + role/site-content/demo seed pada MySQL 8.4 |
-| Full PHPUnit | ✅ PASS, 153 test / 996 assertion | seluruh suite pada MySQL 8.4; bukan uji concurrency |
+| Full PHPUnit | ✅ PASS, 165 test / 1071 assertion | seluruh suite pada MySQL 8.4; bukan uji concurrency |
 | `npm run build` | ✅ PASS | Vite + PWA production assets; ada warning nonfatal yang dicatat di Fase 7 |
 | `npm run types:check` | ✅ PASS | TypeScript `tsc --noEmit`; bukan browser/runtime QA |
 | `npm run lint:check` | ✅ PASS | ESLint tanpa error |
 | `npm run format:check` | ✅ PASS | seluruh berkas `resources/` sesuai Prettier |
 | `composer run lint:check` | ✅ PASS | Pint preset Laravel |
 | `phpstan analyse --memory-limit=1G` | ✅ PASS, 0 error | level 7 pada app/bootstrap/config/database/routes |
-| Playwright e2e | ✅ PASS, 19 test | alur lintas role, responsivitas lima viewport, CSP dan MapLibre, aksesibilitas, tema, manifest/service worker via Chromium |
+| Playwright e2e | ✅ PASS, 19 test | alur lintas role, responsivitas lima viewport termasuk panel akses, CSP dan MapLibre, aksesibilitas, tema, manifest/service worker via Chromium |
+| Perbandingan `route:list` dengan bundle produksi | ✅ PASS | setiap endpoint memiliki jalur UI; dua pengecualian sah dicatat pada Fase 6 |
 | `php artisan ecovillage:check-deploy-config` | ✅ PASS, 18 pemeriksaan | konsistensi Nginx/php.ini/Dockerfile/compose dan batas unggahan; bukan eksekusi engine |
 | `php artisan ecovillage:check-production` | ⚙️ Berjalan, GAGAL sesuai harapan pada host lokal | gerbang rilis; menolak APP_ENV=local, APP_DEBUG=true, dan akun demo aktif seperti seharusnya |
 | Parse `docker/nginx/default.conf` dengan crossplane | ✅ PASS, 48 direktif | parser resmi Nginx melalui Python; satu-satunya galat adalah `include fastcgi_params` yang memang hanya ada di dalam image |

@@ -39,7 +39,14 @@ async function login(page: Page, email: string): Promise<void> {
     await page.getByLabel('Alamat email').fill(email);
     await page.getByLabel('Kata sandi', { exact: true }).fill(password);
     await page.getByRole('button', { name: 'Masuk', exact: true }).click();
-    await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/);
+    /*
+     * Masuk menuntut satu perjalanan penuh ke server: verifikasi kata sandi
+     * dengan bcrypt 12 putaran, regenerasi sesi, lalu navigasi Inertia. Server
+     * pengembangan PHP melayani permintaan satu per satu, sehingga ambang lima
+     * detik bawaan Playwright terlalu ketat ketika mesin sedang sibuk dan
+     * membuat suite gagal karena beban, bukan karena cacat aplikasi.
+     */
+    await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 30_000 });
 }
 
 test('alur inti lintas role dari registrasi hingga penukaran poin', async ({

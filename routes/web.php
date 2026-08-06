@@ -172,6 +172,9 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::patch('/content-reports/{report}', [AdminController::class, 'resolveReport'])->name('reports.resolve');
         Route::patch('/site-settings/{setting}', [AdminController::class, 'updateSetting'])->name('settings.update');
         Route::patch('/users/{user}/role', [AdminController::class, 'assignRole'])->name('users.role');
+        Route::get('/akses', [AdminAccessController::class, 'index'])
+            ->middleware('permission:users.manage|roles.manage')
+            ->name('access.index');
         Route::post('/users/{user}/region-assignments', [AdminAccessController::class, 'storeRegionAssignment'])
             ->middleware(['role:super-admin', 'permission:users.manage', 'permission:regions.manage', 'throttle:20,1'])
             ->name('users.region-assignments.store');

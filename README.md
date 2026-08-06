@@ -142,6 +142,18 @@ Dua template environment tersedia dan keduanya bebas secret:
 
 Jangan commit `.env`, dan jangan menyalin `.env` pengembangan ke server: nilainya memakai HTTP, database lokal, akun demo aktif, dan mailer yang tidak mengirim apa pun. Kelengkapan kedua template dijaga `EnvironmentTemplateTest`, sehingga variabel baru yang dibaca `config/` tidak dapat lolos tanpa didokumentasikan.
 
+## Panel pengelolaan
+
+| Halaman | Untuk | Dibatasi |
+|---|---|---|
+| `/admin/operations` | ringkasan operasional, moderasi, penyesuaian poin | `reports.view` |
+| `/admin/master-data` | wilayah, jenis sampah, faktor dampak, edukasi, program, produk, stok, dan pemrosesan penukaran | permission per modul |
+| `/admin/akses` | role pengguna, penugasan wilayah, dan permission per role | `users.manage` atau `roles.manage` |
+| `/admin/konten-situs` | teks, gambar, dan background halaman publik | `settings.manage` |
+| `/operasional/pengumpulan` | antrean tugas petugas dan pengelola wilayah | permission pengumpulan |
+
+Kontrol penugasan, pengambilan, penimbangan, verifikasi, dan penolakan berada pada halaman detail pengumpulan, mengikuti kewenangan dan status permintaan. Penukaran poin dapat dibatalkan dari panel master data; poin dikembalikan lewat reversal ledger dan stok dipulihkan dalam satu transaction.
+
 ## Migration dan seed
 
 ```bash

@@ -5,6 +5,9 @@ export type User = {
     avatar?: string | null;
     role?: string;
     roles?: Array<string | { name: string }>;
+    // Dibagikan HandleInertiaRequests pada setiap request; dipakai untuk
+    // menampilkan menu yang bergantung pada permission, bukan pada role.
+    permissions?: string[];
     green_points?: number;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;

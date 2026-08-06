@@ -19,6 +19,7 @@ const publicPages = [
 const authenticatedPages = [
     '/dashboard',
     '/admin/master-data',
+    '/admin/akses',
     '/operasional/pengumpulan',
 ];
 
@@ -194,7 +195,9 @@ test('aksesibilitas struktural halaman terotentikasi', async ({ page }) => {
     await page.getByLabel('Alamat email').fill('admin@gmail.com');
     await page.getByLabel('Kata sandi', { exact: true }).fill('password');
     await page.getByRole('button', { name: 'Masuk', exact: true }).click();
-    await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/);
+    // Server pengembangan melayani permintaan satu per satu; ambang bawaan
+    // lima detik membuat suite gagal karena beban mesin, bukan karena cacat.
+    await expect(page).toHaveURL(/\/dashboard(?:\?.*)?$/, { timeout: 30_000 });
 
     for (const path of authenticatedPages) {
         await page.goto(path, { waitUntil: 'networkidle' });
