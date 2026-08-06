@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#237a4b">
+    <link rel="icon" href="/icon/logo.png" type="image/png" sizes="1024x1024">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <title>Offline — EcoVillage.id</title>
+    <style>
+        :root{color-scheme:light dark;font-family:"Segoe UI",system-ui,sans-serif;background:#f7f8f1;color:#173b2a}*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 80% 10%,#d8efdc 0,transparent 35%),#f7f8f1}.card{width:min(100%,520px);border:1px solid #cddbd0;border-radius:28px;background:#fff;padding:32px;box-shadow:0 28px 70px -48px #164e35}.mark{display:grid;place-items:center;width:52px;height:52px}.mark img{width:68px;height:68px;max-width:none;object-fit:contain}h1{margin:24px 0 8px;font-size:28px;letter-spacing:-.03em}p{margin:0;color:#5a6c61;line-height:1.65}.note{margin-top:20px;padding:14px 16px;border-radius:14px;background:#f1f5ef;font-size:14px}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}button,a{border:0;border-radius:11px;padding:11px 16px;font:600 14px inherit;text-decoration:none;cursor:pointer}.primary{background:#237a4b;color:#fff}.secondary{background:#eef3ec;color:#173b2a}@media(prefers-color-scheme:dark){:root{background:#10271c;color:#eef7ef}body{background:radial-gradient(circle at 80% 10%,#194b32 0,transparent 35%),#10271c}.card{background:#173426;border-color:#315642}p{color:#b5c8bb}.note,.secondary{background:#203e2e;color:#e8f3e9}}</style>
+</head>
+<body>
+    <main class="card">
+        <div class="mark" aria-hidden="true"><img src="/icon/logo.png" alt=""></div>
+        <h1>Anda sedang offline</h1>
+        <p>Koneksi tidak tersedia. Demi keamanan, alamat, profil, transaksi poin, verifikasi, dan data operasional tidak disimpan untuk akses offline.</p>
+        <p class="note">Materi edukasi publik yang sebelumnya ditandai aman oleh server mungkin dapat dibuka dari riwayat browser.</p>
+        <div class="actions">
+            <button class="primary" onclick="location.reload()">Coba lagi</button>
+            <a class="secondary" href="/edukasi">Buka edukasi</a>
+        </div>
+    </main>
+</body>
+</html>

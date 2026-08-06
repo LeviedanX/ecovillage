@@ -1,0 +1,1159 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@theme {
+    /* ---------------------------------------------------------------- */
+    /* Typography                                                       */
+    /* ---------------------------------------------------------------- */
+    --font-sans:
+        'Instrument Sans', 'Segoe UI', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    /* Display face injected by the Laravel fonts plugin (see vite.config.ts). */
+    --font-display:
+        var(--font-display-face, 'Plus Jakarta Sans'), 'Instrument Sans',
+        'Segoe UI', ui-sans-serif, system-ui, sans-serif;
+
+    /*
+     * Fluid type scale. Every `text-*` utility already used across the app
+     * becomes viewport-aware without touching a single page, while the
+     * clamp() floors keep small screens readable.
+     */
+    --text-xs: 0.75rem;
+    --text-xs--line-height: 1.45;
+    --text-sm: 0.875rem;
+    --text-sm--line-height: 1.55;
+    --text-base: clamp(1rem, 0.973rem + 0.13vw, 1.0625rem);
+    --text-base--line-height: 1.65;
+    --text-lg: clamp(1.075rem, 1.023rem + 0.26vw, 1.1875rem);
+    --text-lg--line-height: 1.6;
+    --text-xl: clamp(1.175rem, 1.1rem + 0.37vw, 1.35rem);
+    --text-xl--line-height: 1.5;
+    --text-xl--letter-spacing: -0.01em;
+    --text-2xl: clamp(1.375rem, 1.25rem + 0.63vw, 1.675rem);
+    --text-2xl--line-height: 1.32;
+    --text-2xl--letter-spacing: -0.015em;
+    --text-3xl: clamp(1.625rem, 1.39rem + 1.17vw, 2.185rem);
+    --text-3xl--line-height: 1.2;
+    --text-3xl--letter-spacing: -0.022em;
+    --text-4xl: clamp(1.95rem, 1.6rem + 1.75vw, 2.8rem);
+    --text-4xl--line-height: 1.13;
+    --text-4xl--letter-spacing: -0.028em;
+    --text-5xl: clamp(2.35rem, 1.83rem + 2.6vw, 3.6rem);
+    --text-5xl--line-height: 1.08;
+    --text-5xl--letter-spacing: -0.032em;
+    --text-6xl: clamp(2.75rem, 1.98rem + 3.85vw, 4.6rem);
+    --text-6xl--line-height: 1.04;
+    --text-6xl--letter-spacing: -0.036em;
+    --text-7xl: clamp(3.25rem, 2.27rem + 4.9vw, 5.6rem);
+    --text-7xl--line-height: 1.02;
+    --text-7xl--letter-spacing: -0.04em;
+
+    /* ---------------------------------------------------------------- */
+    /* Radii, shadows, motion                                           */
+    /* ---------------------------------------------------------------- */
+    /*
+     * Only the shadcn-owned steps are re-pointed at `--radius`; `xl` and above
+     * stay on Tailwind's stock scale, which the pages already lay out against.
+     */
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --shadow-eco: 0 12px 36px -28px var(--shadow-tint);
+    --shadow-eco-md: 0 18px 44px -30px var(--shadow-tint);
+    --shadow-eco-lg: 0 30px 70px -42px var(--shadow-tint-strong);
+    --shadow-eco-xl: 0 44px 96px -52px var(--shadow-tint-strong);
+
+    --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --animate-float-slow: float-slow 9s var(--ease-in-out-soft) infinite;
+    --animate-pulse-ring: pulse-ring 2.6s var(--ease-out-quint) infinite;
+    --animate-shimmer: shimmer 2s linear infinite;
+    --animate-rise-in: rise-in 0.6s var(--ease-out-quint) both;
+    --animate-grid-drift: grid-drift 22s linear infinite;
+    --animate-soft-pulse: soft-pulse 3.2s var(--ease-in-out-soft) infinite;
+
+    /* ---------------------------------------------------------------- */
+    /* Colors                                                           */
+    /* ---------------------------------------------------------------- */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@keyframes float-slow {
+    0%,
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+    50% {
+        transform: translate3d(0, -10px, 0);
+    }
+}
+
+@keyframes pulse-ring {
+    0% {
+        opacity: 0.55;
+        transform: scale(0.85);
+    }
+    70%,
+    100% {
+        opacity: 0;
+        transform: scale(1.55);
+    }
+}
+
+@keyframes shimmer {
+    from {
+        background-position: -140% 0;
+    }
+    to {
+        background-position: 140% 0;
+    }
+}
+
+@keyframes rise-in {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 14px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes grid-drift {
+    to {
+        background-position: clamp(20px, 4vw, 32px) clamp(20px, 4vw, 32px);
+    }
+}
+
+@keyframes soft-pulse {
+    0%,
+    100% {
+        opacity: 0.7;
+        transform: scale(0.92);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+}
+
+/*
+ * Marker dots breathe on opacity alone. Scaling a 7px dot reads as a wobble at
+ * that size, which is exactly the kind of fidget that makes a page feel cheap.
+ */
+@keyframes dot-pulse {
+    0%,
+    100% {
+        opacity: 0.55;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/*
+ * Page entrance stays on compositor-only properties. Blurring the whole
+ * document on every navigation costs a full-page filter pass and reads as a
+ * smear rather than a transition.
+ */
+@keyframes page-enter {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 10px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes gradient-flow {
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes rim-spin {
+    to {
+        --eco-angle: 360deg;
+    }
+}
+
+@keyframes metal-sweep {
+    0%,
+    100% {
+        background-position: 130% 50%;
+    }
+    50% {
+        background-position: -30% 50%;
+    }
+}
+
+/*
+ * Satu-satunya tema aplikasi: hijau gelap. Tidak ada lagi varian terang, jadi
+ * seluruh nilai di bawah adalah nilai final — bukan basis yang ditimpa blok
+ * lain. `color-scheme` ikut dinyatakan supaya kontrol bawaan peramban
+ * (scrollbar, date picker pada filter peta, dropdown) mengikuti, karena tanpa
+ * itu widget-widget tersebut tetap dilukis putih di atas permukaan gelap.
+ */
+:root {
+    color-scheme: dark;
+
+    --background: oklch(0.17 0.025 154);
+    --foreground: oklch(0.945 0.018 115);
+    --card: oklch(0.205 0.028 154);
+    --card-foreground: oklch(0.945 0.018 115);
+    --popover: oklch(0.205 0.028 154);
+    --popover-foreground: oklch(0.945 0.018 115);
+    --primary: oklch(0.7 0.14 150);
+    --primary-foreground: oklch(0.17 0.025 154);
+    --secondary: oklch(0.28 0.045 150);
+    --secondary-foreground: oklch(0.9 0.05 140);
+    --muted: oklch(0.25 0.025 152);
+    --muted-foreground: oklch(0.72 0.025 145);
+    --accent: oklch(0.3 0.05 95);
+    --accent-foreground: oklch(0.92 0.06 100);
+    --destructive: oklch(0.65 0.21 27.325);
+    --destructive-foreground: oklch(0.65 0.21 27.325);
+    --border: oklch(0.3 0.03 150);
+    --input: oklch(0.32 0.03 150);
+    --ring: oklch(0.62 0.13 151);
+    --chart-1: oklch(0.63 0.145 151);
+    --chart-2: oklch(0.78 0.14 112);
+    --chart-3: oklch(0.72 0.12 190);
+    --chart-4: oklch(0.82 0.15 78);
+    --chart-5: oklch(0.68 0.13 250);
+    --radius: 0.875rem;
+    --sidebar: oklch(0.195 0.028 152);
+    --sidebar-foreground: oklch(0.945 0.018 115);
+    --sidebar-primary: oklch(0.7 0.14 150);
+    --sidebar-primary-foreground: oklch(0.17 0.025 154);
+    --sidebar-accent: oklch(0.3 0.05 148);
+    --sidebar-accent-foreground: oklch(0.93 0.04 140);
+    --sidebar-border: oklch(0.3 0.035 145);
+    --sidebar-ring: oklch(0.62 0.13 151);
+
+    /*
+     * Bayangan di atas permukaan gelap harus benar-benar hitam. Bayangan
+     * ber-tint hijau seperti pada tema terang justru terbaca sebagai kabut,
+     * bukan kedalaman.
+     */
+    --shadow-tint: oklch(0 0 0 / 0.7);
+    --shadow-tint-strong: oklch(0 0 0 / 0.85);
+
+    /* Motion system defaults, consumed by the reveal engine below. */
+    --reveal-duration: 620ms;
+    --reveal-shift: 1.15rem;
+    --reveal-step: 60ms;
+    --reveal-ease: var(--ease-out-expo);
+    --reveal-blur: 6px;
+
+    /* Hover surface accents. */
+    --surface-sheen: oklch(1 0 0 / 0.1);
+    --surface-glow: oklch(0.71 0.142 146 / 0.1);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        /* Keeps anchored sections clear of the sticky headers. */
+        scroll-padding-top: 5.5rem;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-background text-foreground antialiased;
+        min-width: 320px;
+        /* Safety net: no page may scroll sideways on small screens. */
+        overflow-x: clip;
+        text-rendering: optimizeLegibility;
+        font-synthesis-weight: none;
+        font-feature-settings:
+            'kern' 1,
+            'liga' 1;
+        overflow-wrap: break-word;
+    }
+
+    :where(a, button, input, textarea, select, summary) {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    :where(input, textarea, select) {
+        transition:
+            border-color 0.25s var(--ease-out-quint),
+            box-shadow 0.25s var(--ease-out-quint),
+            background-color 0.25s var(--ease-out-quint);
+    }
+
+    /*
+     * No transform on focus. Nudging a field as the caret lands in it shifts
+     * the text the visitor is about to type into.
+     */
+
+    h1,
+    h2,
+    h3,
+    h4,
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    h1,
+    h2,
+    h3 {
+        text-wrap: balance;
+    }
+
+    p {
+        text-wrap: pretty;
+    }
+
+    /* Media never breaks the layout, whatever a page author writes. */
+    img,
+    svg,
+    video,
+    canvas,
+    iframe {
+        max-width: 100%;
+    }
+
+    img,
+    video {
+        height: auto;
+    }
+
+    /* Numeric readouts stay column-aligned while values change. */
+    th,
+    td,
+    time,
+    [data-numeric] {
+        font-variant-numeric: tabular-nums;
+    }
+
+    ::selection {
+        @apply bg-primary/20 text-foreground;
+    }
+
+    :focus-visible {
+        outline: 2px solid color-mix(in oklab, var(--ring) 80%, transparent);
+        outline-offset: 2px;
+        border-radius: var(--radius-sm);
+    }
+
+    /* Themed, unobtrusive scrollbars. */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in oklab, var(--border) 90%, transparent)
+            transparent;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: color-mix(in oklab, var(--border) 92%, transparent);
+        border: 3px solid transparent;
+        background-clip: content-box;
+        border-radius: 999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in oklab, var(--primary) 45%, var(--border));
+        background-clip: content-box;
+    }
+}
+
+@layer components {
+    .eco-container {
+        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    /* Fluid vertical rhythm for marketing sections. */
+    .eco-section {
+        padding-block: clamp(3.5rem, 2.2rem + 6.5vw, 7rem);
+    }
+
+    .eco-section-sm {
+        padding-block: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem);
+    }
+
+    /*
+     * Pembungkus konten di atas foto latar.
+     *
+     * Sebelumnya kelas ini mengecat satu panel kaca setinggi seluruh area
+     * konten. Di atas foto latar, panel itu terbaca sebagai kotak berwarna
+     * yang menutupi gambar, bukan sebagai permukaan. Sekarang kelas ini
+     * hanya menjadi konteks posisi; kontras teks ditangani oleh kartu yang
+     * memang punya latar sendiri dan oleh setelan opasitas latar publik.
+     */
+    .eco-surface {
+        position: relative;
+    }
+
+    .eco-card {
+        @apply rounded-2xl border bg-card shadow-eco;
+        position: relative;
+        isolation: isolate;
+        transition:
+            transform 0.4s var(--ease-out-quint),
+            box-shadow 0.4s var(--ease-out-quint),
+            border-color 0.35s var(--ease-out-quint),
+            background-color 0.35s var(--ease-out-quint);
+    }
+
+    /*
+     * Hover decoration sits at z-index -1: inside the card's own stacking
+     * context that paints it above the card background but below the content,
+     * so nothing is ever washed over the text. Both layers are `inset: 0`, so
+     * they can never spill outside the card the way a translated sweep does.
+     */
+    .eco-card-interactive::before,
+    .eco-card-interactive::after {
+        position: absolute;
+        z-index: -1;
+        inset: 0;
+        border-radius: inherit;
+        content: '';
+        pointer-events: none;
+    }
+
+    /*
+     * Ambient glow. It sits at the top edge where the light would naturally
+     * fall, and the motion runtime re-points it at the cursor while the card
+     * is hovered, so the surface reads as catching a real light source rather
+     * than wearing a gradient baked in at build time. Without JS, a touch
+     * device, or reduced motion, the fallbacks keep the original top-lit look.
+     */
+    .eco-card-interactive::before {
+        background: radial-gradient(
+            120% 90% at var(--pointer-x, 50%) var(--pointer-y, 0%),
+            var(--surface-glow) 0%,
+            transparent 62%
+        );
+        opacity: 0;
+        transition: opacity 0.45s var(--ease-out-quint);
+    }
+
+    /* Hairline top bevel. Always faintly on, so hover only firms it up. */
+    .eco-card-interactive::after {
+        box-shadow: inset 0 1px 0 var(--surface-sheen);
+        opacity: 0.45;
+        transition: opacity 0.45s var(--ease-out-quint);
+    }
+
+    /* Opt-in lift. Pointer devices only, so taps never leave a stuck state. */
+    @media (hover: hover) and (pointer: fine) {
+        .eco-card-interactive:hover {
+            /* No scale: resampling text every frame is what makes a hover
+               look blurry rather than expensive. */
+            transform: translate3d(0, -4px, 0);
+            @apply shadow-eco-md;
+            border-color: color-mix(
+                in oklab,
+                var(--primary) 24%,
+                var(--border)
+            );
+        }
+
+        .eco-card-interactive:hover::before,
+        .eco-card-interactive:hover::after {
+            opacity: 1;
+        }
+
+        .eco-card-interactive img {
+            transition: transform 0.6s var(--ease-out-quint);
+        }
+
+        /* Media only. Icons stay put — a rotating glyph is a gimmick. */
+        .eco-card-interactive:hover img {
+            transform: scale(1.035);
+        }
+
+        .eco-lift {
+            transition:
+                transform 0.35s var(--ease-out-quint),
+                box-shadow 0.35s var(--ease-out-quint);
+        }
+
+        .eco-lift:hover {
+            transform: translate3d(0, -2px, 0);
+        }
+    }
+
+    .eco-card-interactive:active {
+        transform: translate3d(0, -1px, 0);
+        transition-duration: 0.12s;
+    }
+
+    /*
+     * Rounded icon plate used at the head of feature cards. It carries the
+     * card's hover feedback so the icon itself never has to move.
+     */
+    .eco-icon-tile {
+        @apply grid place-items-center rounded-2xl bg-secondary text-primary;
+        transition:
+            background-color 0.4s var(--ease-out-quint),
+            box-shadow 0.4s var(--ease-out-quint),
+            color 0.4s var(--ease-out-quint);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .eco-card-interactive:hover .eco-icon-tile {
+            background-color: color-mix(
+                in oklab,
+                var(--primary) 16%,
+                var(--secondary)
+            );
+            box-shadow: 0 0 0 1px
+                color-mix(in oklab, var(--primary) 22%, transparent);
+        }
+    }
+
+    [data-slot='button'] {
+        contain: paint;
+        isolation: isolate;
+        overflow: hidden;
+    }
+
+    /*
+     * A soft top-lit highlight instead of a travelling glare band. It reads as
+     * the surface catching light, and it cannot streak across neighbouring
+     * content mid-transition.
+     */
+    [data-slot='button']::after {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: radial-gradient(
+            90% 160% at 50% -40%,
+            color-mix(in oklab, white 22%, transparent) 0%,
+            transparent 68%
+        );
+        content: '';
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.32s var(--ease-out-quint);
+    }
+
+    [data-slot='button'] > svg {
+        transition: transform 0.35s var(--ease-out-quint);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        [data-slot='button']:hover::after {
+            opacity: 1;
+        }
+
+        [data-slot='button']:hover > svg:last-child {
+            transform: translate3d(2px, 0, 0);
+        }
+
+        article a:hover > svg:last-child,
+        .eco-link-motion:hover > svg:last-child {
+            transform: translate3d(3px, 0, 0);
+        }
+    }
+
+    .eco-label {
+        @apply inline-flex items-center gap-2 text-xs font-semibold tracking-[0.14em] text-primary uppercase;
+        font-family: var(--font-display);
+    }
+
+    .eco-label::before {
+        width: 0.42rem;
+        height: 0.42rem;
+        border-radius: 999px;
+        background: currentColor;
+        box-shadow: 0 0 0 0.26rem
+            color-mix(in oklab, currentColor 14%, transparent);
+        content: '';
+        animation: dot-pulse 3.4s var(--ease-in-out-soft) infinite;
+    }
+
+    .eco-grid-bg {
+        background-image:
+            linear-gradient(
+                to right,
+                color-mix(in oklab, var(--border) 38%, transparent) 1px,
+                transparent 1px
+            ),
+            linear-gradient(
+                to bottom,
+                color-mix(in oklab, var(--border) 38%, transparent) 1px,
+                transparent 1px
+            );
+        background-size: clamp(20px, 4vw, 32px) clamp(20px, 4vw, 32px);
+        mask-image: radial-gradient(
+            ellipse 90% 70% at 50% 0%,
+            #000 45%,
+            transparent 100%
+        );
+        animation: var(--animate-grid-drift);
+    }
+
+    /*
+     * Narrower hue span and a slower cycle: the headline should shift like
+     * light moving over a surface, not cycle through a rainbow.
+     */
+    .eco-gradient-text {
+        background: linear-gradient(
+            100deg,
+            var(--primary) 8%,
+            oklch(0.79 0.14 142) 45%,
+            oklch(0.84 0.13 112) 70%,
+            var(--primary) 96%
+        );
+        background-size: 190% 190%;
+        background-clip: text;
+        color: transparent;
+        animation: gradient-flow 12s var(--ease-in-out-soft) infinite;
+    }
+
+    .eco-scroll-progress {
+        box-shadow:
+            0 0 10px color-mix(in oklab, var(--primary) 72%, transparent),
+            0 0 22px color-mix(in oklab, oklch(0.8 0.16 110) 38%, transparent);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        header nav a {
+            transition:
+                color 0.3s var(--ease-out-quint),
+                transform 0.3s var(--ease-out-quint);
+        }
+
+        header nav a:hover {
+            transform: translate3d(0, -1px, 0);
+        }
+
+        .eco-logo-mark {
+            transition: transform 0.45s var(--ease-spring);
+        }
+
+        a:hover > .eco-logo-mark {
+            transform: rotate(-3deg) scale(1.05);
+        }
+    }
+
+    /* Horizontal scroll region that still reads as intentional on mobile. */
+    .eco-scroll-x {
+        @apply -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0;
+        scroll-snap-type: x proximity;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .eco-scroll-x > * {
+        scroll-snap-align: start;
+    }
+
+    /* Wraps wide tables so they scroll inside the card, never the page. */
+    .eco-table-wrap {
+        @apply w-full overflow-x-auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .eco-shimmer {
+        background-image: linear-gradient(
+            100deg,
+            transparent 20%,
+            color-mix(in oklab, var(--foreground) 8%, transparent) 45%,
+            transparent 70%
+        );
+        background-size: 220% 100%;
+        animation: var(--animate-shimmer);
+    }
+
+    /* Gradient underline that grows on hover — used for inline links. */
+    .eco-underline {
+        background-image: linear-gradient(currentColor, currentColor);
+        background-position: 0 100%;
+        background-repeat: no-repeat;
+        background-size: 0% 1.5px;
+        transition: background-size 0.35s var(--ease-out-quint);
+    }
+
+    .eco-underline:hover,
+    .eco-underline:focus-visible {
+        background-size: 100% 1.5px;
+    }
+
+    /* ---------------------------------------------------------------- */
+    /* Depth and ambience                                               */
+    /* ---------------------------------------------------------------- */
+
+    /*
+     * Scroll parallax, driven by the motion runtime.
+     *
+     * This uses the independent `translate` property rather than `transform`
+     * so it composes with whatever transform an element already carries —
+     * several of the decorative layers here are mid-keyframe on `transform`,
+     * and writing to it directly would fight the animation every frame.
+     *
+     * Caveat for anyone adding `data-parallax` to markup: Tailwind v4's
+     * `translate-*` utilities write this same property from the utility layer,
+     * which outranks this rule. Centre a parallax layer with `inset-x-0
+     * mx-auto`, never with `left-1/2 -translate-x-1/2`, or it will sit still.
+     */
+    html.motion-on [data-parallax] {
+        translate: 0 var(--parallax-shift, 0px);
+    }
+
+    /*
+     * Fine grain. Flat colour fields on large surfaces band on cheap panels
+     * and read as plastic on good ones; a little noise is what gives print
+     * its depth, and the same trick works here. Kept under 4% so it reads as
+     * texture rather than dirt.
+     */
+    .eco-noise::after {
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.38'/%3E%3C/svg%3E");
+        content: '';
+        opacity: 0.035;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+    }
+
+    /*
+     * Rotating conic rim.
+     *
+     * The angle is registered as a real custom property below, which is what
+     * lets it interpolate — an unregistered `--angle` is just a string to the
+     * engine and would jump between keyframes instead of sweeping.
+     *
+     * The gradient fills the whole box and is then masked down to a hairline:
+     * two stacked masks, one clipped to the content box, composited so only the
+     * padding ring survives. A layer sitting *behind* the element would be the
+     * obvious approach, but it is invisible the moment the surface has an
+     * opaque background — which every card here does — and it gets clipped away
+     * by `overflow-hidden` besides. This version needs neither.
+     */
+    .eco-rim {
+        position: relative;
+    }
+
+    .eco-rim::before {
+        position: absolute;
+        z-index: 1;
+        inset: 0;
+        padding: 1px;
+        border-radius: inherit;
+        background: conic-gradient(
+            from var(--eco-angle),
+            transparent 0deg,
+            color-mix(in oklab, var(--primary) 55%, transparent) 60deg,
+            color-mix(in oklab, oklch(0.82 0.16 110) 60%, transparent) 120deg,
+            transparent 200deg,
+            transparent 360deg
+        );
+        content: '';
+        opacity: 0;
+        pointer-events: none;
+        -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+        mask-composite: exclude;
+        transition: opacity 0.5s var(--ease-out-quint);
+        animation: rim-spin 5s linear infinite;
+    }
+
+    .eco-rim-on::before,
+    .eco-rim:focus-within::before {
+        opacity: 0.85;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .eco-rim:hover::before {
+            opacity: 1;
+        }
+    }
+
+    /*
+     * Numeric readouts that should feel struck rather than typed. The sweep is
+     * a masked highlight travelling across the glyphs, not a colour cycle, so
+     * the figure stays legible at every point in the loop.
+     */
+    .eco-metal-text {
+        background: linear-gradient(
+            96deg,
+            var(--foreground) 0%,
+            var(--foreground) 38%,
+            color-mix(in oklab, var(--primary) 70%, var(--foreground)) 50%,
+            var(--foreground) 62%,
+            var(--foreground) 100%
+        );
+        background-size: 260% 100%;
+        background-clip: text;
+        color: transparent;
+        animation: metal-sweep 7s var(--ease-in-out-soft) infinite;
+    }
+}
+
+/*
+ * Registered so the conic rim's angle animates as a number. Declared outside
+ * the component layer because `@property` is not a style rule and cannot be
+ * nested inside one.
+ */
+@property --eco-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+/* ------------------------------------------------------------------ */
+/* Scroll reveal engine                                                */
+/*                                                                     */
+/* Elements marked with `data-reveal` animate in when they enter the   */
+/* viewport and re-arm once they have fully left, so the entrance      */
+/* replays every time the visitor scrolls back over a section — down   */
+/* the page and back up it. The engine records which edge an element   */
+/* left by in `data-reveal-from`, and every variant below reads that   */
+/* attribute so the travel always opposes the scroll: content met on   */
+/* the way down rises into place, content met on the way up settles    */
+/* back down. `.reveal-on` is set on <html> by the runtime only when   */
+/* JS + IntersectionObserver are available, which keeps SSR output and */
+/* no-JS visitors fully readable.                                      */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+    /*
+     * Pre-paint hold.
+     *
+     * `reveal-armed` is set by an inline script in the document head, so this
+     * rule is live on the very first frame — long before the engine can run.
+     * It holds every reveal target at zero opacity until the engine assigns a
+     * `data-reveal-state`, at which point the selector stops matching and the
+     * rules below take over. Without it the server markup would paint settled
+     * and then be hidden a moment later, which is the flash this whole system
+     * exists to avoid.
+     *
+     * Only opacity is held. The transform belongs to the variant, and applying
+     * it here would mean maintaining every variant's start pose twice.
+     */
+    html.reveal-armed [data-reveal]:not([data-reveal-state]) {
+        opacity: 0;
+    }
+
+    /*
+     * Groups carry two stagger tracks. Approached from below the children run
+     * in source order; approached from above the order is reversed, so the
+     * item closest to the visitor always leads regardless of travel direction.
+     */
+    html.reveal-on [data-reveal] {
+        --reveal-delay: var(--reveal-lead-in, 0ms);
+    }
+
+    html.reveal-on [data-reveal][data-reveal-from='above'] {
+        --reveal-delay: var(--reveal-lead-back, var(--reveal-lead-in, 0ms));
+    }
+
+    /*
+     * Only opacity and transform are transitioned for the common variants;
+     * `filter` and `clip-path` are opted into by their own variants alone, so
+     * ordinary reveals never pay for a filter or clipping layer.
+     *
+     * The transition is scoped to the two animating states. Once the engine
+     * marks an element `settled` these rules stop matching entirely, so the
+     * element's own hover transition takes over — otherwise a staggered card
+     * would inherit the reveal's delay and lift half a second after the
+     * pointer reached it.
+     */
+    html.reveal-on [data-reveal][data-reveal-state='hidden'],
+    html.reveal-on [data-reveal][data-reveal-state='visible'] {
+        transition:
+            opacity var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms),
+            transform var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms);
+    }
+
+    html.reveal-on [data-reveal][data-reveal-state='visible'] {
+        opacity: 1;
+        transform: none;
+        will-change: opacity, transform;
+    }
+
+    /*
+     * No `will-change` here. Every off-screen element on the page sits in this
+     * state permanently now that reveals replay, and hinting all of them would
+     * hold a compositor layer for content that is not even painted. The hint
+     * is applied on the `visible` state above, where it is actually needed.
+     *
+     * Re-arming happens off-screen, but a re-armed element must not animate
+     * its way back to the hidden pose — that would be a visible rewind if the
+     * visitor caught it at the edge. The reset is instant; only the entrance
+     * is transitioned, since a transition is governed by the state being
+     * moved *to*.
+     */
+    html.reveal-on [data-reveal][data-reveal-state='hidden'] {
+        opacity: 0;
+        transition-duration: 0ms;
+        transition-delay: 0ms;
+    }
+
+    /* Vertical (default): enters from whichever edge it is waiting behind. */
+    html.reveal-on [data-reveal='up'][data-reveal-state='hidden'],
+    html.reveal-on [data-reveal=''][data-reveal-state='hidden'] {
+        transform: translate3d(0, var(--reveal-shift), 0);
+    }
+
+    html.reveal-on
+        [data-reveal='up'][data-reveal-from='above'][data-reveal-state='hidden'],
+    html.reveal-on
+        [data-reveal=''][data-reveal-from='above'][data-reveal-state='hidden'] {
+        transform: translate3d(0, calc(var(--reveal-shift) * -1), 0);
+    }
+
+    html.reveal-on [data-reveal='fade'][data-reveal-state='hidden'] {
+        transform: none;
+    }
+
+    /*
+     * Horizontal variants keep their axis in both directions — an element
+     * authored to arrive from the left should always arrive from the left —
+     * but they pick up a slight vertical lean that follows the scroll, which
+     * is enough to keep them in sympathy with everything around them.
+     */
+    html.reveal-on [data-reveal='left'][data-reveal-state='hidden'] {
+        transform: translate3d(
+            calc(var(--reveal-shift) * -1.3),
+            calc(var(--reveal-shift) * 0.3),
+            0
+        );
+    }
+
+    html.reveal-on
+        [data-reveal='left'][data-reveal-from='above'][data-reveal-state='hidden'] {
+        transform: translate3d(
+            calc(var(--reveal-shift) * -1.3),
+            calc(var(--reveal-shift) * -0.3),
+            0
+        );
+    }
+
+    html.reveal-on [data-reveal='right'][data-reveal-state='hidden'] {
+        transform: translate3d(
+            calc(var(--reveal-shift) * 1.3),
+            calc(var(--reveal-shift) * 0.3),
+            0
+        );
+    }
+
+    html.reveal-on
+        [data-reveal='right'][data-reveal-from='above'][data-reveal-state='hidden'] {
+        transform: translate3d(
+            calc(var(--reveal-shift) * 1.3),
+            calc(var(--reveal-shift) * -0.3),
+            0
+        );
+    }
+
+    /* No rotation on any variant — a tilt that settles to 0deg looks like a
+       slide gone wrong, and it resamples text for the whole transition. */
+    html.reveal-on [data-reveal='scale'][data-reveal-state='hidden'] {
+        transform: translate3d(0, calc(var(--reveal-shift) * 0.45), 0)
+            scale(0.965);
+    }
+
+    html.reveal-on
+        [data-reveal='scale'][data-reveal-from='above'][data-reveal-state='hidden'] {
+        transform: translate3d(0, calc(var(--reveal-shift) * -0.45), 0)
+            scale(0.965);
+    }
+
+    html.reveal-on [data-reveal='blur'][data-reveal-state='visible'] {
+        transition:
+            opacity var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms),
+            transform var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms),
+            filter var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms);
+        filter: blur(0);
+    }
+
+    html.reveal-on [data-reveal='blur'][data-reveal-state='hidden'] {
+        transform: translate3d(0, calc(var(--reveal-shift) * 0.6), 0);
+        filter: blur(var(--reveal-blur));
+    }
+
+    html.reveal-on
+        [data-reveal='blur'][data-reveal-from='above'][data-reveal-state='hidden'] {
+        transform: translate3d(0, calc(var(--reveal-shift) * -0.6), 0);
+    }
+
+    /*
+     * Wipe variant. The element is uncovered from the edge the visitor is
+     * travelling towards while it drifts a short distance, which reads as the
+     * panel being drawn out of the page rather than dropped onto it. Reserved
+     * for large surfaces — on small text it just looks like a clipping bug.
+     */
+    html.reveal-on [data-reveal='clip'][data-reveal-state='visible'] {
+        transition:
+            opacity var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms),
+            transform var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms),
+            clip-path var(--reveal-duration) var(--reveal-ease)
+                var(--reveal-delay, 0ms);
+        clip-path: inset(0 0 0 0 round var(--reveal-clip-radius, 0));
+    }
+
+    html.reveal-on [data-reveal='clip'][data-reveal-state='hidden'] {
+        transform: translate3d(0, calc(var(--reveal-shift) * 0.5), 0);
+        clip-path: inset(28% 0 0 0 round var(--reveal-clip-radius, 0));
+    }
+
+    html.reveal-on
+        [data-reveal='clip'][data-reveal-from='above'][data-reveal-state='hidden'] {
+        transform: translate3d(0, calc(var(--reveal-shift) * -0.5), 0);
+        clip-path: inset(0 0 28% 0 round var(--reveal-clip-radius, 0));
+    }
+
+    /* Section headers travel a little further for a calmer cadence. */
+    html.reveal-on [data-reveal][data-reveal-distance='lg'] {
+        --reveal-shift: 1.9rem;
+        --reveal-blur: 8px;
+    }
+
+    html.reveal-on [data-reveal][data-reveal-distance='sm'] {
+        --reveal-shift: 0.75rem;
+        --reveal-duration: 520ms;
+        --reveal-blur: 4px;
+    }
+
+    /*
+     * Dense, repeating rows — table bodies, notification lists — where a full
+     * reveal would turn a scroll into a flipbook. Short travel, quick settle.
+     */
+    html.reveal-on [data-reveal][data-reveal-distance='xs'] {
+        --reveal-shift: 0.45rem;
+        --reveal-duration: 420ms;
+        --reveal-blur: 3px;
+    }
+}
+
+/*
+ * Inertia page transitions: new documents settle in instead of snapping.
+ *
+ * Gated on `reveal-armed` rather than `reveal-on` so the animation is attached
+ * at first paint. Under the old gate the class arrived only after hydration,
+ * which meant the first page of a visit painted settled and then restarted its
+ * entrance from zero — the one flash a page transition must never produce.
+ *
+ * Kept short: it carries the frame while the reveal engine choreographs the
+ * detail inside it, and a long wrapper fade on top of staggered children just
+ * reads as a slow page.
+ */
+@media (prefers-reduced-motion: no-preference) {
+    html.reveal-armed [data-page-transition] {
+        animation: page-enter 0.38s var(--ease-out-quint) both;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+/*
+ * Printing never scrolls, so anything still waiting to be revealed has to be
+ * forced back into view or the page would print half empty.
+ */
+@media print {
+    html.reveal-on [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        transition: none !important;
+    }
+
+    .eco-grid-bg,
+    [data-page-transition] {
+        animation: none !important;
+    }
+}
