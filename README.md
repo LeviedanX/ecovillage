@@ -4,6 +4,8 @@ EcoVillage.id adalah platform digital untuk program induk **Eco Village**. Produ
 
 Repositori ini sedang dibangun bertahap. Ketersediaan aktual setiap modul, bukti uji, dan gap yang masih terbuka dicatat di [Status Implementasi](docs/IMPLEMENTATION_STATUS.md). Jangan menyamakan keberadaan schema atau halaman dengan fitur yang telah selesai diuji.
 
+Seluruh quality gate berstatus hijau, tetapi aplikasi **belum pernah dibangun sebagai image maupun dijalankan di server**. Langkah menuju hosting beserta batas buktinya ada di [Menuju hosting](#menuju-hosting).
+
 ## Stack
 
 - Laravel 13, PHP 8.3+, Inertia.js 3, React 19, dan TypeScript strict.
@@ -125,21 +127,20 @@ Pada Windows, gunakan executable `npm.cmd` jika asosiasi PowerShell untuk `npm` 
 - `TRUSTED_PROXIES` wajib diisi bila TLS diterminasi di reverse proxy atau load balancer. Tanpa itu Laravel membaca skema dan IP dari koneksi proxy, sehingga HSTS tidak terkirim dan audit log menyimpan IP proxy, bukan IP pengguna.
 - `MAIL_MAILER` menentukan apakah email benar-benar terkirim. Bila belum ada layanan email, setel `REQUIRE_EMAIL_VERIFICATION=false`: akun baru langsung aktif sehingga alur pokok tidak berhenti di halaman verifikasi. Dengan mailer tersedia, biarkan `true` dan pakai `failover` agar kegagalan transport tidak menjatuhkan pendaftaran.
 - `NEUTRAL_REGISTRATION_RESPONSE=true` membuat halaman daftar menjawab sama untuk email yang sudah terdaftar maupun belum. Flag ini hanya berlaku ketika verifikasi email aktif, karena pemberitahuan ke pemilik akun dikirim lewat email.
-- CSP aktif secara baku dan memakai nonce per request. `MAP_TILE_ORIGINS` diisi bila tile atau sprite peta dilayani host lain; peta akan kosong bila origin-nya tidak terdaftar. `CSP_REPORT_ONLY=true` dipakai saat menguji perubahan kebijakan pada traffic nyata.
-
-Sebelum melepas rilis, jalankan dua gerbang berikut pada environment tujuan:
-
-```bash
-php artisan ecovillage:check-production
-php artisan ecovillage:check-deploy-config
-```
-
-Keduanya keluar dengan kode selain nol bila konfigurasi belum layak, sehingga dapat dipakai sebagai release task yang menghentikan deployment.
+- CSP aktif secara baku dan memakai nonce per request. `MAP_TILE_ORIGINS` diisi bila tile atau sprite peta dilayani host lain; peta akan kosong bila origin-nya tidak terdaftar. `CSP_REPORT_ONLY=true` dipakai saat menguji perubahan kebijakan pada traffic nyata. Kebijakan tidak ditegakkan selama server Vite berjalan, karena aset dev dilayani dari origin lain yang tidak selalu dapat dinyatakan CSP.
 - `APP_TIMEZONE=Asia/Jakarta`, locale `id`, kilogram, Rupiah, dan koordinat WGS84/EPSG:4326 adalah baseline produk; `config/app.php` membaca timezone dari environment.
 - Development memakai `FILESYSTEM_DISK=local`. Produksi dapat memakai `s3` dengan mengisi `AWS_*`; objek privat harus disajikan melalui signed URL.
 - `PRIVATE_UPLOAD_DISK`, batas upload, konfigurasi mitra B3, serta agregasi/presisi peta publik berada di environment. Nilai peta contoh bukan jaminan anonimisasi; review [Kebijakan Privasi dan Peta](docs/PRIVACY_AND_MAP_POLICY.md) sebelum production.
-- `VITE_MAP_STYLE_URL` harus menunjuk style MapLibre yang sah. Jangan menaruh API key/tile token di source code.
-- Jangan commit `.env`. `.env.example` sengaja tidak memuat secret nyata.
+- `VITE_MAP_STYLE_URL` harus menunjuk style MapLibre yang sah. Seluruh variabel `VITE_*` ikut ter-bundle dan dapat dibaca pengunjung; jangan menaruh API key atau tile token di sana.
+
+Dua template environment tersedia dan keduanya bebas secret:
+
+| Berkas | Untuk |
+|---|---|
+| `.env.example` | pengembangan lokal dan Docker Compose |
+| `.env.production.example` | server hosting; sudah berbentuk production, tinggal mengisi nilai bertanda `ISI_` |
+
+Jangan commit `.env`, dan jangan menyalin `.env` pengembangan ke server: nilainya memakai HTTP, database lokal, akun demo aktif, dan mailer yang tidak mengirim apa pun. Kelengkapan kedua template dijaga `EnvironmentTemplateTest`, sehingga variabel baru yang dibaca `config/` tidak dapat lolos tanpa didokumentasikan.
 
 ## Migration dan seed
 
@@ -176,6 +177,14 @@ npm run format:check
 npm run types:check
 ```
 
+Pemeriksaan konfigurasi deployment ikut berjalan sebagai bagian dari suite, tetapi dapat dipanggil langsung:
+
+```bash
+php artisan ecovillage:check-deploy-config
+```
+
+Suite Playwright selalu menguji aset hasil build. Bila `npm run dev` sedang berjalan, penanda `public/hot` disingkirkan sementara lalu dikembalikan setelah suite selesai, sehingga sesi pengembangan tidak terganggu.
+
 Hasil aktual, termasuk kegagalan atau cek yang belum dijalankan, harus dicatat di [Status Implementasi](docs/IMPLEMENTATION_STATUS.md).
 
 ## Build produksi
@@ -196,6 +205,62 @@ docker build --target production -t ecovillage-id:local .
 ```
 
 Image tidak menjalankan migration otomatis. Jalankan migration sebagai release task satu kali, kemudian jalankan web, queue worker, dan scheduler dengan revision image yang sama. Rincian ada di [Deployment](docs/DEPLOYMENT.md).
+
+## Menuju hosting
+
+### Status kesiapan
+
+Kode aplikasi, keamanan, dan kualitas sudah terverifikasi otomatis: PHPUnit, Playwright lintas viewport, aksesibilitas, PHPStan, ESLint, Prettier, Pint, dan build produksi. Yang **belum pernah dijalankan** dan karena itu tidak boleh dianggap terbukti:
+
+- image Docker belum pernah dibangun sekali pun;
+- `nginx -t` dan `docker compose config` belum pernah dieksekusi;
+- aplikasi belum pernah berjalan di server mana pun, sehingga TLS, cookie `secure`, queue worker, scheduler, signed URL S3, DNS, backup, dan restore drill masih nol verifikasi;
+- uji concurrency pada verifikasi dan penukaran poin belum dilakukan.
+
+Batas bukti per fase dicatat di [Status Implementasi](docs/IMPLEMENTATION_STATUS.md). Jangan menyamakan gate hijau dengan aplikasi yang sudah live.
+
+### 1. Kunci revisi
+
+Setiap deployment mengacu pada satu commit. Image aplikasi dan image web wajib berasal dari commit yang sama agar manifest aset sinkron.
+
+```bash
+git rev-parse --short HEAD
+```
+
+### 2. Siapkan environment tujuan
+
+`.env.production.example` sudah berbentuk production: `APP_ENV=production`, `APP_DEBUG=false`, cookie `secure`, sesi terenkripsi, CSP aktif, akun demo mati, dan storage mengarah ke S3. Yang tersisa hanya mengisi nilai bertanda `ISI_`.
+
+```bash
+cp .env.production.example .env      # di server, bukan di repositori
+php artisan key:generate --force
+```
+
+Jangan menyalin `.env` pengembangan ke server: nilainya memakai HTTP, database lokal, akun demo aktif, dan mailer `log`.
+
+### 3. Lewati dua gerbang rilis
+
+```bash
+php artisan ecovillage:check-deploy-config   # konsistensi Nginx, php.ini, Dockerfile, compose
+php artisan ecovillage:check-production      # env, cookie, secret, mailer, storage, migration
+```
+
+Keduanya keluar dengan kode selain nol bila ada baris `GAGAL`, sehingga dapat dipasang sebagai release task yang menghentikan pipeline. Jalankan `check-production` pada environment tujuan, bukan di mesin pengembangan.
+
+### 4. Bangun dan verifikasi image
+
+Langkah ini memerlukan host dengan Docker Engine.
+
+```bash
+docker build --target production -t registry.example/ecovillage/app:$(git rev-parse --short HEAD) .
+docker build --target nginx-production -t registry.example/ecovillage/web:$(git rev-parse --short HEAD) .
+docker compose config >/dev/null
+docker run --rm -v "$PWD/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro" nginx:1.28-alpine nginx -t
+```
+
+### 5. Staging lalu production
+
+Naikkan ke staging dengan secret staging, jalankan `php artisan migrate --force` sebagai release task satu kali, lalu jalankan smoke test: masuk, ajukan pengumpulan, verifikasi, penukaran poin, buka peta, dan keluar. Setelah staging bersih, ulangi pada production dengan revision image yang sama. Urutan lengkap, rollback, dan checklist go-live ada di [Deployment](docs/DEPLOYMENT.md).
 
 ## Akun demo
 

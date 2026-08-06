@@ -167,14 +167,15 @@ Dikerjakan pada tanggal yang sama, setelah tabel temuan di atas.
 
 ## Blocker dan risiko prioritas
 
-1. Isi environment tujuan lalu jalankan `ecovillage:check-production` dan `ecovillage:check-deploy-config` sampai keduanya hijau. Keputusan yang tersisa untuk pemilik produk: memakai mailer sungguhan, atau menerima `REQUIRE_EMAIL_VERIFICATION=false` beserta konsekuensinya.
-2. Jalankan `nginx -t`, `docker compose config`, dan build image pada host yang memiliki Docker Engine. Konsistensi antar berkas sudah dijaga command, tetapi eksekusi engine belum pernah dilakukan.
-3. Lengkapi UI operasional/admin/CMS agar endpoint backend benar-benar dapat dipakai sesuai role tanpa request manual.
-4. Jalankan uji concurrency pada MySQL: row-lock race, deadlock retry, dan review migration fresh/rollback beserta query plan.
-5. Lengkapi factor set scope/geografi, governance versi aktif, serta review sumber ilmiah sebelum data non-demo.
-6. QA aksesibilitas dengan pembaca layar sungguhan. Yang terotomasi baru struktur, keyboard, fokus, dan kontras; pengalaman NVDA/VoiceOver belum diuji.
-7. Dapatkan foto sketsa Eco Village terpisah untuk audit visual traceable; jangan menebak detail yang hilang.
-8. Verifikasi staging/live: TLS/cookie, queue/scheduler, S3 signed URL, backup-restore, monitoring, DNS, dan logout.
+1. Bangun image pada host ber-Docker lalu jalankan `nginx -t` dan `docker compose config`. Konsistensi antar berkas sudah dijaga `ecovillage:check-deploy-config`, tetapi engine belum pernah mengeksekusinya sekali pun; build pertama adalah risiko yang belum diukur.
+2. Salin `.env.production.example` ke server, isi 16 nilai bertanda `ISI_`, jalankan `key:generate`, lalu lewati `ecovillage:check-production` sampai hijau. Keputusan yang tersisa untuk pemilik produk: memakai mailer sungguhan, atau menerima `REQUIRE_EMAIL_VERIFICATION=false` beserta konsekuensinya.
+3. Naikkan ke staging dan jalankan smoke test lintas role sebelum menyentuh production.
+4. Lengkapi UI operasional/admin/CMS agar endpoint backend benar-benar dapat dipakai sesuai role tanpa request manual.
+5. Jalankan uji concurrency pada MySQL: row-lock race, deadlock retry, dan review migration fresh/rollback beserta query plan.
+6. Lengkapi factor set scope/geografi, governance versi aktif, serta review sumber ilmiah sebelum data non-demo.
+7. QA aksesibilitas dengan pembaca layar sungguhan. Yang terotomasi baru struktur, keyboard, fokus, dan kontras; pengalaman NVDA/VoiceOver belum diuji.
+8. Dapatkan foto sketsa Eco Village terpisah untuk audit visual traceable; jangan menebak detail yang hilang.
+9. Verifikasi staging/live: TLS/cookie, queue/scheduler, S3 signed URL, backup-restore, monitoring, DNS, dan logout.
 
 ## Definition of done
 
