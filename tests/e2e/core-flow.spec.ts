@@ -1,7 +1,16 @@
 import { expect, test } from '@playwright/test';
 import type { Browser, BrowserContext, Page } from '@playwright/test';
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:8000';
+import { e2eAppEnv } from './env';
+
+/*
+ * Spec ini membuat browser context sendiri, sehingga `baseURL` pada
+ * `playwright.config.ts` tidak ikut terpakai dan harus diambil dari sumber yang
+ * sama. Menuliskan port di sini secara harfiah membuat pengujian menyasar
+ * server lain begitu port digeser: seluruh langkah berjalan di atas database
+ * pengembangan, dan kegagalannya terbaca seperti cacat aplikasi.
+ */
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? e2eAppEnv.APP_URL;
 const password = 'password';
 const accounts = {
     citizen: 'warga@gmail.com',
@@ -80,7 +89,17 @@ test('alur inti lintas role dari registrasi hingga penukaran poin', async ({
                     .getByRole('button', { name: 'Buat akun', exact: true })
                     .click();
 
-                await expect(page).toHaveURL(/\/register\/pending$/);
+                /*
+                 * Sama seperti `login`: pendaftaran melakukan hashing bcrypt 12
+                 * putaran, menyimpan pengguna, lalu mengirim notifikasi
+                 * verifikasi secara sinkron pada satu permintaan. Ambang lima
+                 * detik bawaan Playwright membuat langkah ini gagal karena
+                 * beban mesin ketika seluruh suite berjalan, padahal berjalan
+                 * sendirian ia selalu lolos.
+                 */
+                await expect(page).toHaveURL(/\/register\/pending$/, {
+                    timeout: 30_000,
+                });
                 await expect(
                     page.getByRole('heading', {
                         name: 'Periksa email Anda',

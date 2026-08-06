@@ -76,6 +76,14 @@ class ContentSecurityPolicyTest extends TestCase
         $this->assertStringNotContainsString("'unsafe-inline'", $scriptSources);
         $this->assertStringNotContainsString("'unsafe-eval'", $scriptSources);
         $this->assertMatchesRegularExpression("/'nonce-[A-Za-z0-9+\/=]+'/", $scriptSources);
+
+        /*
+         * `connect-src` mengizinkan `data:` demi penajam gambar bawaan sejumlah
+         * peramban. Di `script-src` skema itu berbahaya: ia membuat penyerang
+         * yang dapat menyisipkan satu tag script menjalankan kode tanpa perlu
+         * menebak nonce. Batas itu dikunci di sini.
+         */
+        $this->assertStringNotContainsString('data:', $scriptSources);
     }
 
     public function test_every_inline_script_carries_the_nonce_from_the_header(): void
@@ -118,7 +126,7 @@ class ContentSecurityPolicyTest extends TestCase
         // Hanya skema dan host yang boleh masuk; path atau query membuat
         // direktif tidak pernah cocok dengan permintaan sebenarnya.
         $this->assertStringContainsString('img-src \'self\' data: blob: https://tiles.example.test https://sprites.example.test', $policy);
-        $this->assertStringContainsString("connect-src 'self' https://tiles.example.test https://sprites.example.test", $policy);
+        $this->assertStringContainsString("connect-src 'self' data: https://tiles.example.test https://sprites.example.test", $policy);
         $this->assertStringNotContainsString('style.json', $policy);
         $this->assertStringNotContainsString('key=abc', $policy);
     }

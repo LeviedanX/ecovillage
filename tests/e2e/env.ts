@@ -6,11 +6,18 @@ export const e2eDatabase = process.env.E2E_DB_DATABASE ?? 'ecovillage_id_e2e';
 
 export const e2eSsrUrl = process.env.E2E_SSR_URL ?? 'http://127.0.0.1:13714';
 
+/**
+ * Port 8000 juga dipakai `php artisan serve`. Playwright menolak berjalan bila
+ * port itu sudah terpakai, jadi sediakan jalan keluar lewat `E2E_APP_PORT`
+ * agar suite tetap dapat dijalankan tanpa mematikan server pengembangan.
+ */
+export const e2eAppPort = process.env.E2E_APP_PORT ?? '8000';
+
 export const e2eAppEnv = {
     APP_ENV: 'testing',
     APP_DEBUG: 'false',
     APP_KEY: 'base64:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=',
-    APP_URL: 'http://127.0.0.1:8000',
+    APP_URL: `http://127.0.0.1:${e2eAppPort}`,
     CACHE_STORE: 'array',
     DB_CONNECTION: 'mysql',
     DB_HOST: process.env.E2E_DB_HOST ?? '127.0.0.1',

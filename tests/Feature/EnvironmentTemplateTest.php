@@ -5,9 +5,13 @@ namespace Tests\Feature;
 use Tests\TestCase;
 
 /**
- * Template environment adalah satu-satunya petunjuk yang dimiliki orang yang
- * melakukan deployment. Bila ia menyimpang dari yang benar-benar dibaca
- * aplikasi, kesalahannya baru terlihat setelah aplikasi live.
+ * Berkas `.env` adalah satu-satunya petunjuk yang dimiliki orang yang melakukan
+ * deployment. Bila ia menyimpang dari yang benar-benar dibaca aplikasi,
+ * kesalahannya baru terlihat setelah aplikasi live.
+ *
+ * Berkas itu tidak ikut ke repositori, jadi pemeriksaan di sini dilewati bila
+ * tidak ada — misalnya pada CI yang menyuntikkan environment lewat secret
+ * manager.
  */
 class EnvironmentTemplateTest extends TestCase
 {
@@ -30,9 +34,19 @@ class EnvironmentTemplateTest extends TestCase
         return $values;
     }
 
-    public function test_production_template_is_shaped_for_production(): void
+    /** @return array<string, string> */
+    private function environmentFile(string $file): array
     {
-        $env = $this->parse('.env.production.example');
+        if (! is_file(base_path($file))) {
+            $this->markTestSkipped("Berkas {$file} tidak ada pada lingkungan ini.");
+        }
+
+        return $this->parse($file);
+    }
+
+    public function test_environment_file_is_shaped_for_production(): void
+    {
+        $env = $this->environmentFile('.env.production');
 
         $expected = [
             'APP_ENV' => 'production',
@@ -48,32 +62,39 @@ class EnvironmentTemplateTest extends TestCase
         ];
 
         foreach ($expected as $key => $value) {
-            $this->assertSame($value, $env[$key] ?? null, "{$key} pada template production salah.");
+            $this->assertSame($value, $env[$key] ?? null, "{$key} pada .env.production salah.");
         }
 
         $this->assertStringStartsWith('https://', $env['APP_URL'] ?? '');
     }
 
-    public function test_production_template_carries_no_usable_secret(): void
+    /**
+     * Nilai bertanda `ISI_` adalah penanda yang belum diisi. Sebagian boleh
+     * tersisa sampai layanannya benar-benar dipakai, tetapi kunci aplikasi dan
+     * kata sandi datastore harus sudah berupa nilai asli sebelum rilis.
+     */
+    public function test_core_secrets_are_filled_in(): void
     {
-        $env = $this->parse('.env.production.example');
+        $env = $this->environmentFile('.env.production');
 
-        foreach (['APP_KEY', 'DB_PASSWORD', 'REDIS_PASSWORD', 'MAIL_PASSWORD', 'AWS_SECRET_ACCESS_KEY'] as $key) {
+        foreach (['APP_KEY', 'DB_PASSWORD', 'REDIS_PASSWORD'] as $key) {
             $value = $env[$key] ?? '';
 
             $this->assertTrue(
-                $value === '' || str_starts_with($value, 'ISI_') || str_contains($value, 'CHANGE_ME'),
-                "{$key} pada template harus kosong atau berupa penanda, bukan nilai yang dapat dipakai.",
+                $value !== ''
+                    && ! str_starts_with($value, 'ISI_')
+                    && ! str_contains($value, 'CHANGE_ME'),
+                "{$key} masih kosong atau berupa penanda.",
             );
         }
     }
 
     /**
-     * Setiap variabel yang dibaca `config/` harus muncul pada kedua template,
-     * kalau tidak orang yang melakukan deployment tidak punya cara mengetahui
+     * Setiap variabel yang dibaca `config/` harus muncul di kedua berkas, kalau
+     * tidak orang yang melakukan deployment tidak punya cara mengetahui
      * variabel itu ada.
      */
-    public function test_both_templates_cover_every_environment_variable_the_config_reads(): void
+    public function test_environment_files_cover_every_variable_the_config_reads(): void
     {
         $used = [];
 
@@ -102,7 +123,7 @@ class EnvironmentTemplateTest extends TestCase
             'LOG_STDERR_FORMATTER', 'LOG_SYSLOG_FACILITY', 'LOG_LEVEL_DEPRECATIONS',
             'SQS_PREFIX', 'SQS_QUEUE', 'SQS_SUFFIX', 'AWS_SESSION_TOKEN',
             'PERMISSION_CACHE_EXPIRATION_TIME', 'PERMISSION_CACHE_KEY', 'PERMISSION_CACHE_STORE',
-            'PASSKEYS_USER_HANDLE_SECRET', 'INERTIA_SSR_ENABLED', 'INERTIA_SSR_URL',
+            'PASSKEYS_USER_HANDLE_SECRET',
             'RESEND_KEY', 'SLACK_BOT_USER_OAUTH_TOKEN', 'SLACK_BOT_USER_DEFAULT_CHANNEL',
             'POSTMARK_TOKEN', 'SCOUT_DRIVER', 'QUEUE_FAILED_DRIVER', 'NIGHTWATCH_ENABLED',
             'CACHE_STORAGE_DISK', 'CACHE_STORAGE_PATH', 'REDIS_CACHE_CONNECTION',
@@ -113,20 +134,19 @@ class EnvironmentTemplateTest extends TestCase
             'BEANSTALKD_QUEUE_RETRY_AFTER', 'POSTMARK_API_KEY', 'RESEND_API_KEY',
             'SESSION_EXPIRE_ON_CLOSE',
             // Opsional dan bergantung penyedia; didokumentasikan sebagai baris
-            // komentar pada template production.
+            // komentar pada `.env.production`.
             'MYSQL_ATTR_SSL_CA',
         ];
 
-        $required = array_values(array_diff($used, $ignored));
+        $required = array_diff($used, $ignored);
 
-        foreach (['.env.example', '.env.production.example'] as $template) {
-            $documented = array_keys($this->parse($template));
-            $missing = array_values(array_diff($required, $documented));
+        foreach (['.env', '.env.production'] as $file) {
+            $missing = array_values(array_diff($required, array_keys($this->environmentFile($file))));
 
             $this->assertSame(
                 [],
                 $missing,
-                "Variabel berikut dibaca config/ tetapi tidak ada di {$template}: ".implode(', ', $missing),
+                "Variabel berikut dibaca config/ tetapi tidak ada di {$file}: ".implode(', ', $missing),
             );
         }
     }

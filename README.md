@@ -27,21 +27,9 @@ Jalur Docker memerlukan Docker Engine/Desktop dengan Docker Compose v2. Jalur ma
 
 ## Instalasi dengan Docker
 
-1. Salin konfigurasi contoh.
+1. `.env` sudah tersedia dan berisi nilai pengembangan yang siap pakai: MySQL native, driver `database` untuk sesi/cache/queue sehingga Redis tidak diperlukan, dan mailer `log`. Sesuaikan `DB_PORT`, `DB_USERNAME`, dan `DB_PASSWORD` dengan server MySQL Anda.
 
-   PowerShell:
-
-   ```powershell
-   Copy-Item .env.example .env
-   ```
-
-   Linux/macOS:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Ganti `DB_PASSWORD`, `DB_ROOT_PASSWORD`, dan `REDIS_PASSWORD` dengan tiga nilai acak yang berbeda. Nilai `CHANGE_ME...` hanya penanda, bukan kredensial siap pakai.
+2. Untuk Docker, `compose.yaml` menimpa host database dan Redis dengan nama service-nya sendiri, jadi nilai `DB_HOST` dan `REDIS_HOST` pada `.env` tidak berpengaruh di dalam container.
 3. Bangun image pengembangan dan hidupkan dependency.
 
    ```bash
@@ -69,7 +57,7 @@ MySQL dan Redis diekspos hanya ke loopback host. Jika port lokal sudah dipakai, 
 
 ## Instalasi manual
 
-Konfigurasi `.env.example` memakai hostname container (`mysql` dan `redis`). Untuk instalasi native Windows/Linux, salin file tersebut lalu ubah `DB_HOST=127.0.0.1` dan `REDIS_HOST=127.0.0.1`. Sesuaikan juga `DB_PORT` bila server MySQL Anda tidak memakai port baku `3306`. Pastikan database dan user sudah dibuat:
+Konfigurasi `.env` sudah memakai `127.0.0.1` untuk MySQL dan tidak menuntut Redis. Sesuaikan juga `DB_PORT` bila server MySQL Anda tidak memakai port baku `3306`. Pastikan database dan user sudah dibuat:
 
 ### Windows
 
@@ -133,14 +121,16 @@ Pada Windows, gunakan executable `npm.cmd` jika asosiasi PowerShell untuk `npm` 
 - `PRIVATE_UPLOAD_DISK`, batas upload, konfigurasi mitra B3, serta agregasi/presisi peta publik berada di environment. Nilai peta contoh bukan jaminan anonimisasi; review [Kebijakan Privasi dan Peta](docs/PRIVACY_AND_MAP_POLICY.md) sebelum production.
 - `VITE_MAP_STYLE_URL` harus menunjuk style MapLibre yang sah. Seluruh variabel `VITE_*` ikut ter-bundle dan dapat dibaca pengunjung; jangan menaruh API key atau tile token di sana.
 
-Dua template environment tersedia dan keduanya bebas secret:
+Ada dua berkas environment, dan keduanya tidak ikut ke repositori:
 
 | Berkas | Untuk |
 |---|---|
-| `.env.example` | pengembangan lokal dan Docker Compose |
-| `.env.production.example` | server hosting; sudah berbentuk production, tinggal mengisi nilai bertanda `ISI_` |
+| `.env` | mesin pengembang dan Docker Compose lokal; satu-satunya yang dibaca aplikasi |
+| `.env.production` | server hosting; sudah final, tinggal mengisi nilai bertanda `ISI_` lalu disalin menjadi `.env` di server |
 
-Jangan commit `.env`, dan jangan menyalin `.env` pengembangan ke server: nilainya memakai HTTP, database lokal, akun demo aktif, dan mailer yang tidak mengirim apa pun. Kelengkapan kedua template dijaga `EnvironmentTemplateTest`, sehingga variabel baru yang dibaca `config/` tidak dapat lolos tanpa didokumentasikan.
+`.env.production` sudah berbentuk production: `APP_ENV=production`, `APP_DEBUG=false`, cookie `secure`, sesi terenkripsi, CSP aktif, akun demo mati, serta MySQL dan Redis mengarah ke service `compose.yaml`. Ia juga memuat `APP_KEY` dan kata sandi datastore asli, jadi jangan pernah di-commit — `.gitignore` sudah menahan keduanya. Pada platform yang menyediakan secret manager, isi variabel lewat mekanisme itu dan perlakukan berkas ini sebagai daftar acuan.
+
+Kelengkapan keduanya dijaga `EnvironmentTemplateTest`, sehingga variabel baru yang dibaca `config/` tidak dapat lolos tanpa didokumentasikan. Nilai yang dipakai pengujian dikunci di `phpunit.xml`, bukan diambil dari `.env`, agar hasil test tidak berubah mengikuti isi environment mesin yang menjalankannya.
 
 ## Render sisi server dan SEO
 
@@ -253,14 +243,19 @@ git rev-parse --short HEAD
 
 ### 2. Siapkan environment tujuan
 
-`.env.production.example` sudah berbentuk production: `APP_ENV=production`, `APP_DEBUG=false`, cookie `secure`, sesi terenkripsi, CSP aktif, akun demo mati, dan storage mengarah ke S3. Yang tersisa hanya mengisi nilai bertanda `ISI_`.
+`.env.production` sudah berbentuk production: `APP_ENV=production`, `APP_DEBUG=false`, cookie `secure`, sesi terenkripsi, CSP aktif, dan akun demo mati. Yang tersisa hanya mengisi nilai bertanda `ISI_`.
 
 ```bash
-cp .env.production.example .env      # di server, bukan di repositori
+cp .env.production .env      # di server, bukan di repositori
+```
+
+Kirim berkas itu lewat jalur yang aman (secret manager, `scp`, atau variabel environment platform), bukan lewat repositori. Bila salinannya pernah beredar di luar server, terbitkan kunci baru:
+
+```bash
 php artisan key:generate --force
 ```
 
-Jangan menyalin `.env` pengembangan ke server: nilainya memakai HTTP, database lokal, akun demo aktif, dan mailer `log`.
+Mengganti `APP_KEY` membatalkan seluruh sesi dan membuat data terenkripsi lama tidak terbaca, jadi lakukan sebelum ada data produksi.
 
 ### 3. Lewati dua gerbang rilis
 

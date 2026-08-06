@@ -150,7 +150,7 @@ class CheckProductionReadiness extends Command
 
         foreach ($suspects as $name => $value) {
             if (Str::contains($value, 'CHANGE_ME', ignoreCase: true)) {
-                $this->bad($name, 'Masih memakai nilai penanda dari .env.example.');
+                $this->bad($name, 'Masih memakai nilai penanda, bukan kredensial asli.');
 
                 continue;
             }

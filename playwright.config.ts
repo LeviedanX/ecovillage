@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 
-import { e2eAppEnv } from './tests/e2e/env';
+import { e2eAppEnv, e2eAppPort } from './tests/e2e/env';
 
 const appEnv = e2eAppEnv;
 
@@ -34,10 +34,9 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command:
-            'php -S 127.0.0.1:8000 -t . ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php',
+        command: `php -S 127.0.0.1:${e2eAppPort} -t . ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php`,
         cwd: path.resolve('public'),
-        url: 'http://127.0.0.1:8000/up',
+        url: `${appEnv.APP_URL}/up`,
         env: appEnv,
         reuseExistingServer: false,
         timeout: 120_000,

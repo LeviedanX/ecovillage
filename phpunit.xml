@@ -19,6 +19,16 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <!--
+            Berkas `.env` di repositori ini berisi nilai production. Tanpa
+            penguncian di bawah, nilai itu ikut terbaca saat pengujian: URL
+            kanonis mengikuti domain server, seluruh proxy dipercaya, dan alur
+            pendaftaran berubah. Test harus berdiri di atas nilai yang tetap,
+            bukan pada isi environment mesin yang menjalankannya.
+        -->
+        <env name="APP_URL" value="http://localhost"/>
+        <env name="TRUSTED_PROXIES" value=""/>
+        <env name="REQUIRE_EMAIL_VERIFICATION" value="true"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

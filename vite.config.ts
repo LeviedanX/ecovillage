@@ -7,7 +7,7 @@ import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
     /*
      * Bundle SSR dibuat mandiri. Secara baku Vite membiarkan dependency tetap
      * eksternal, sehingga berkas hasil build menuntut `node_modules` ada di
@@ -15,9 +15,34 @@ export default defineConfig({
      * lebih lambat. Dengan seluruh dependency ikut dibundel, image SSR cukup
      * berisi Node dan satu berkas, dan React yang terpakai dipastikan build
      * production.
+     *
+     * Hanya berlaku pada `vite build --ssr`. Di dev, `@inertiajs/vite`
+     * menjalankan entry SSR lewat module runner Vite, dan module runner itu
+     * mengeksekusi setiap berkas sebagai ESM. Memaksa dependency ikut masuk ke
+     * sana membuat paket CommonJS seperti `react` dan `react-dom/server`
+     * dievaluasi sebagai ESM, lalu gagal pada `module is not defined`. Dengan
+     * dibiarkan eksternal, Node yang meng-`import` paket itu dan interop CJS-nya
+     * bekerja normal.
      */
-    ssr: {
-        noExternal: true,
+    ssr: isSsrBuild ? { noExternal: true } : {},
+    /*
+     * Tanpa `strictPort`, `npm run dev` kedua yang dijalankan sementara yang
+     * pertama masih hidup tidak gagal: ia pindah ke 5174 dan menimpa
+     * `public/hot`. Halaman lalu memuat aset dari satu server sementara HMR
+     * memegang token milik server lain, dan Vite menolak koneksi WebSocket-nya
+     * — HTTP tetap jalan, HMR mati tanpa penjelasan. Lebih baik proses kedua
+     * berhenti seketika dengan pesan port terpakai.
+     *
+     * Host dikunci ke 127.0.0.1 karena `localhost` di Windows ter-resolve ke
+     * ::1, sehingga `public/hot` berisi `http://[::1]:5173` dan tidak ada yang
+     * mendengarkan di 127.0.0.1. Saat koneksi ke alamat IPv6 gagal, peramban
+     * mencoba `ws://localhost:5173` sebagai cadangan dan ikut gagal karena
+     * memang tidak ada soket di sana.
+     */
+    server: {
+        host: '127.0.0.1',
+        port: 5173,
+        strictPort: true,
     },
     plugins: [
         laravel({
@@ -108,4 +133,4 @@ export default defineConfig({
             },
         }),
     ],
-});
+}));

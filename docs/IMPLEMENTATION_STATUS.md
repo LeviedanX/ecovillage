@@ -37,7 +37,7 @@ Tidak ada faktor ilmiah, alamat warga nyata, atau detail sketsa yang dikarang un
 
 - [x] Laravel/Inertia/React/TypeScript berada dalam satu modern monolith tanpa React Router/microservices.
 - [x] Dependency utama dan lockfile tersedia; Composer schema valid.
-- [x] `.env.example` memuat MySQL/Redis, storage, map/privacy, B3, demo guard, mail, dan port tanpa secret nyata.
+- [x] `.env` (pengembangan) dan `.env.production` (final untuk hosting) memuat MySQL/Redis, storage, map/privacy, B3, demo guard, mail, dan port; keduanya tidak ikut ke repositori.
 - [x] `APP_TIMEZONE` dibaca `config/app.php` dengan baseline `Asia/Jakarta`; locale default environment adalah `id`.
 - [x] Migration region hierarkis, profile/address, assignment wilayah, dan role/permission tersedia di source. Koordinat memakai kolom desimal, tanpa tipe spasial.
 - [x] Enum empat role, `RolePermissionSeeder`, policy resource utama, dan test isolasi manager lintas wilayah/descendant tersedia.
@@ -186,7 +186,7 @@ Dikerjakan setelah audit keamanan dan performa; seluruhnya diverifikasi, bukan s
 ## Blocker dan risiko prioritas
 
 1. Bangun image pada host ber-Docker lalu jalankan `nginx -t` dan `docker compose config`. Konsistensi antar berkas sudah dijaga `ecovillage:check-deploy-config`, tetapi engine belum pernah mengeksekusinya sekali pun; build pertama adalah risiko yang belum diukur.
-2. Salin `.env.production.example` ke server, isi 16 nilai bertanda `ISI_`, jalankan `key:generate`, lalu lewati `ecovillage:check-production` sampai hijau. Keputusan yang tersisa untuk pemilik produk: memakai mailer sungguhan, atau menerima `REQUIRE_EMAIL_VERIFICATION=false` beserta konsekuensinya.
+2. Kirim `.env.production` ke server lewat jalur aman, salin menjadi `.env`, isi nilai bertanda `ISI_` (domain, dan SMTP bila email dipakai), lalu lewati `ecovillage:check-production` sampai hijau. Keputusan yang tersisa untuk pemilik produk: memakai mailer sungguhan, atau menerima `REQUIRE_EMAIL_VERIFICATION=false` beserta konsekuensinya.
 3. Naikkan ke staging dan jalankan smoke test lintas role sebelum menyentuh production.
 4. Lengkapi UI operasional/admin/CMS agar endpoint backend benar-benar dapat dipakai sesuai role tanpa request manual.
 5. Jalankan uji concurrency pada MySQL: row-lock race, deadlock retry, dan review migration fresh/rollback beserta query plan.

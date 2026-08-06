@@ -71,7 +71,20 @@ class ContentSecurityPolicy
         $styleSources = self::STYLE_SOURCES;
         $imageSources = "'self' data: blob:".$externalSuffix;
         $fontSources = "'self' data:";
-        $connectSources = "'self'".$externalSuffix;
+        /*
+         * `data:` ada di sini bukan untuk aplikasi. Sejumlah peramban berbasis
+         * Chromium — Opera GX salah satunya — menyuntikkan penajam gambar
+         * bawaannya ke dalam halaman dan memuat shader-nya lewat URL `data:`.
+         * Pemuatan itu dihitung sebagai `connect-src`, sehingga tanpa izin ini
+         * setiap pengunjung Opera GX melihat pelanggaran CSP di konsol pada
+         * setiap halaman. Fiturnya milik peramban, bukan ekstensi, jadi tidak
+         * ada yang dapat dimatikan pengguna.
+         *
+         * Pelonggarannya kecil: URL `data:` membawa muatannya sendiri dan bukan
+         * tujuan jaringan, sehingga tidak dapat dipakai mengirim data keluar.
+         * Bahayanya ada pada `script-src`, dan di sana `data:` tetap ditolak.
+         */
+        $connectSources = "'self' data:".$externalSuffix;
 
         return implode('; ', [
             "default-src 'self'",
