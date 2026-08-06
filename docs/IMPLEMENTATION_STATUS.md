@@ -15,11 +15,11 @@ Dokumen ini membedakan keberadaan source, validasi otomatis, dan QA browser. Tan
 
 - ✅ Fondasi modern monolith, dependency/lockfile, schema domain, role/permission, seed sintetis berpagar, environment, Docker source, dan seluruh dokumen wajib tersedia.
 - ✅ Migration + role/demo seed berhasil dari nol pada MySQL 8.4, engine yang sama dengan production.
-- ✅ Backend warga dan operasional tersedia untuk pengumpulan, penimbangan, B3 guard, verifikasi atomik, Green Points/Estimasi Dampak, program, forum, dan marketplace. Seluruh 165 test lulus pada MySQL (1071 assertion).
+- ✅ Backend warga dan operasional tersedia untuk pengumpulan, penimbangan, B3 guard, verifikasi atomik, Green Points/Estimasi Dampak, program, forum, dan marketplace. Seluruh 178 test lulus pada MySQL (1120 assertion).
 - ✅ Kalkulasi dampak authoritative menggunakan `Brick\Math\BigDecimal` dengan scale/rounding eksplisit; golden decimal, mismatch weight, dan idempotency diuji.
 - ✅ PWA production build menghasilkan manifest dan `public/build/sw.js`; service worker memakai `NetworkOnly` untuk route sensitif dan hanya cache edukasi anonim yang ditandai server.
 - ✅ Setiap endpoint aplikasi memiliki jalur UI. Diverifikasi dengan membandingkan `route:list` terhadap bundle produksi; dua pengecualian sah adalah discovery passkey yang dipanggil peramban dan foto pengumpulan yang diakses lewat signed URL.
-- ✅ Quality gate bersih: PHPUnit (165/165), Playwright (19/19), TypeScript, ESLint, Prettier, Pint, dan PHPStan seluruhnya lulus.
+- ✅ Quality gate bersih: PHPUnit (178/178), Playwright (27/27), TypeScript, ESLint, Prettier, Pint, dan PHPStan seluruhnya lulus.
 - ✅ Pemulihan kata sandi, terjemahan pesan bahasa Indonesia, trusted proxy, dan konsistensi batas unggahan ditambahkan pada audit 6 Agustus 2026; rinciannya ada pada tabel temuan di bawah.
 - ✅ Lima gap go-live ditutup pada hari yang sama: kemandirian alur dari layanan email, gerbang konfigurasi production, CSP ber-nonce, registrasi anti-enumerasi, serta validasi konfigurasi deployment dan QA aksesibilitas terotomasi.
 - ⚪ Eksekusi Docker/Nginx pada engine sungguhan, uji pembaca layar, staging, dan hosting live belum diverifikasi.
@@ -126,14 +126,14 @@ Dijalankan ulang seluruhnya pada 6 Agustus 2026, PHP 8.4.10 dan Node 22.17.0, te
 | `composer validate --strict` | ✅ PASS | Composer schema/lock konsisten pada saat cek |
 | `php artisan route:list` | ✅ PASS | Laravel bootstrap dan route registration; bukan request/browser QA |
 | `php artisan migrate:fresh --seed --force` | ✅ PASS | seluruh migration + role/site-content/demo seed pada MySQL 8.4 |
-| Full PHPUnit | ✅ PASS, 165 test / 1071 assertion | seluruh suite pada MySQL 8.4; bukan uji concurrency |
+| Full PHPUnit | ✅ PASS, 178 test / 1120 assertion | seluruh suite pada MySQL 8.4; bukan uji concurrency |
 | `npm run build` | ✅ PASS | Vite + PWA production assets; ada warning nonfatal yang dicatat di Fase 7 |
 | `npm run types:check` | ✅ PASS | TypeScript `tsc --noEmit`; bukan browser/runtime QA |
 | `npm run lint:check` | ✅ PASS | ESLint tanpa error |
 | `npm run format:check` | ✅ PASS | seluruh berkas `resources/` sesuai Prettier |
 | `composer run lint:check` | ✅ PASS | Pint preset Laravel |
 | `phpstan analyse --memory-limit=1G` | ✅ PASS, 0 error | level 7 pada app/bootstrap/config/database/routes |
-| Playwright e2e | ✅ PASS, 19 test | alur lintas role, responsivitas lima viewport termasuk panel akses, CSP dan MapLibre, aksesibilitas, tema, manifest/service worker via Chromium |
+| Playwright e2e | ✅ PASS, 27 test | alur lintas role, responsivitas lima viewport termasuk panel akses, CSP dan MapLibre, aksesibilitas, tema, manifest/service worker, serta HTML hasil SSR tanpa JavaScript via Chromium |
 | Perbandingan `route:list` dengan bundle produksi | ✅ PASS | setiap endpoint memiliki jalur UI; dua pengecualian sah dicatat pada Fase 6 |
 | `php artisan ecovillage:check-deploy-config` | ✅ PASS, 18 pemeriksaan | konsistensi Nginx/php.ini/Dockerfile/compose dan batas unggahan; bukan eksekusi engine |
 | `php artisan ecovillage:check-production` | ⚙️ Berjalan, GAGAL sesuai harapan pada host lokal | gerbang rilis; menolak APP_ENV=local, APP_DEBUG=true, dan akun demo aktif seperti seharusnya |
@@ -166,6 +166,22 @@ Dikerjakan pada tanggal yang sama, setelah tabel temuan di atas.
 | CSP belum ditetapkan | Kebijakan penuh dengan nonce per request, tanpa `'unsafe-inline'` dan `'unsafe-eval'` pada `script-src`, `worker-src blob:` untuk MapLibre, serta origin peta dari environment | `ContentSecurityPolicyTest` 7 test, ditambah verifikasi peramban bahwa canvas MapLibre tetap tampil tanpa pelanggaran |
 | Registrasi membocorkan keberadaan akun | Pendaftaran dipindahkan dari Fortify ke `RegistrationController`: email terdaftar dan belum terdaftar berakhir pada halaman, pesan, dan status sesi yang sama; pemilik akun diberi tahu lewat email | `RegistrationEnumerationTest` 7 test, ditambah perbandingan teks halaman lewat peramban pada `core-flow.spec.ts` |
 | Runtime deployment dan aksesibilitas belum diperiksa | `ecovillage:check-deploy-config` menjaga konsistensi Nginx/php.ini/Dockerfile/compose; `accessibility.spec.ts` memeriksa landmark, hierarki heading, label, nama kontrol, navigasi keyboard, keterlihatan fokus, dan kontras WCAG AA | `DeployConfigTest`, 9 test Playwright aksesibilitas |
+
+## Perbaikan SEO, performa, dan keamanan
+
+Dikerjakan setelah audit keamanan dan performa; seluruhnya diverifikasi, bukan sekadar dikonfigurasi.
+
+| Temuan | Penanganan | Bukti |
+|---|---|---|
+| Halaman publik dikirim sebagai cangkang kosong; crawler dan pratinjau tautan tidak melihat apa pun | Render sisi server Inertia dihidupkan: entry `resources/js/ssr.tsx`, bundle mandiri, stage image `ssr-production`, service Compose, dan fallback otomatis ke render peramban bila prosesnya mati | `seo.spec.ts` memeriksa HTML mentah tanpa JavaScript: `<h1>` ada, teks di atas 500 karakter, judul unik per halaman |
+| Judul seluruh halaman sama dan tanpa deskripsi | Komponen `Seo` menetapkan judul, deskripsi, Open Graph, Twitter card, dan JSON-LD per halaman; canonical serta `og:url` dirender layout dari APP_URL | `SeoTest` 6 test, `seo.spec.ts` 8 test |
+| Tidak ada sitemap; `robots.txt` membuka area terautentikasi | `SitemapController` membangun sitemap dari konten terbit dan menutup seluruh jalur privat | `SeoTest` |
+| Aset teks dikirim tanpa kompresi | gzip diaktifkan pada Nginx untuk HTML, JS, CSS, JSON, SVG, dan XML | `ecovillage:check-deploy-config` |
+| Email dikirim di dalam request | Verifikasi dan setel ulang kata sandi memakai notifikasi ber-antrean | `PasswordResetTest`, `VerificationNotificationTest` |
+| 27 route publik tanpa batas laju | Limiter `web` diterapkan pada seluruh lapisan web, dikunci per pengguna bila sudah masuk | limiter pada `FortifyServiceProvider` |
+| 2FA opsional bagi pemegang data warga | Super admin dan pengelola wajib memasang 2FA sebelum membuka jalur pengelolaan; halaman keamanan tetap terbuka agar tidak ada yang terkunci | `PrivilegedTwoFactorTest` 7 test |
+| Route `/storage/{path}` bawaan terdaftar tanpa dipakai | `serve` pada disk lokal dimatikan | konfigurasi `filesystems` |
+| Kerentanan dependency hanya diperiksa manual | `composer audit` dan `npm audit` menjadi langkah CI | `.github/workflows/tests.yml` |
 
 ## Blocker dan risiko prioritas
 

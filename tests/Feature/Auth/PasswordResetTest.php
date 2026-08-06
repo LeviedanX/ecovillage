@@ -3,7 +3,7 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\QueuedResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -29,7 +29,7 @@ class PasswordResetTest extends TestCase
         $this->post(route('password.email'), ['email' => $user->email])
             ->assertSessionHasNoErrors();
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        Notification::assertSentTo($user, QueuedResetPassword::class);
     }
 
     public function test_unknown_email_does_not_reveal_account_existence(): void
@@ -50,7 +50,7 @@ class PasswordResetTest extends TestCase
 
         $this->post(route('password.email'), ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user): bool {
+        Notification::assertSentTo($user, QueuedResetPassword::class, function (QueuedResetPassword $notification) use ($user): bool {
             $this->get(route('password.reset', ['token' => $notification->token]).'?email='.urlencode($user->email))
                 ->assertOk()
                 ->assertInertia(fn (Assert $page) => $page
@@ -70,7 +70,7 @@ class PasswordResetTest extends TestCase
 
         $this->post(route('password.email'), ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user): bool {
+        Notification::assertSentTo($user, QueuedResetPassword::class, function (QueuedResetPassword $notification) use ($user): bool {
             $this->post(route('password.update'), [
                 'token' => $notification->token,
                 'email' => $user->email,

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\RegistrationStatus;
 use App\Enums\RoleName;
+use App\Notifications\QueuedResetPassword;
+use App\Notifications\QueuedVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -119,13 +121,23 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function sendEmailVerificationNotification(): void
     {
         try {
-            parent::sendEmailVerificationNotification();
+            $this->notify(new QueuedVerifyEmail);
         } catch (Throwable $exception) {
             Log::error('Gagal mengirim email verifikasi.', [
                 'user_id' => $this->getKey(),
                 'exception' => $exception->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Tautan setel ulang juga dikirim lewat antrean. Berbeda dengan verifikasi,
+     * kegagalannya tidak ditelan: pengguna yang menunggu tautan perlu tahu bila
+     * pengiriman gagal, dan broker sudah menampilkan pesannya.
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new QueuedResetPassword($token));
     }
 
     public function hasActiveProgramRegistration(int $programId): bool

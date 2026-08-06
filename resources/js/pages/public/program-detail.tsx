@@ -1,4 +1,4 @@
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     ArrowLeft,
     ArrowRight,
@@ -9,6 +9,7 @@ import {
     Sprout,
     UsersRound,
 } from 'lucide-react';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 import {
     formatDate,
@@ -33,11 +34,31 @@ export default function PublicProgramDetail({ program }: { program: Program }) {
 
     return (
         <>
-            <Head title={program.title}>
-                {program.description && (
-                    <meta name="description" content={program.description} />
-                )}
-            </Head>
+            <Seo
+                title={program.title}
+                description={
+                    program.description ||
+                    `Kegiatan ${program.title} dalam program Eco Village.`
+                }
+                image={cover}
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'Event',
+                    name: program.title,
+                    description: program.description ?? undefined,
+                    startDate: program.starts_at ?? undefined,
+                    endDate: program.ends_at ?? undefined,
+                    eventAttendanceMode:
+                        'https://schema.org/OfflineEventAttendanceMode',
+                    location: program.location
+                        ? { '@type': 'Place', name: program.location }
+                        : undefined,
+                    organizer: {
+                        '@type': 'Organization',
+                        name: 'Eco Village',
+                    },
+                }}
+            />
             <section className="relative isolate overflow-hidden">
                 <div className="eco-container relative py-6 sm:py-8">
                     <Button asChild variant="ghost" size="sm" className="-ml-3">

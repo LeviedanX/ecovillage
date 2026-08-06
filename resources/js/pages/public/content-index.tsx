@@ -1,8 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ArrowRight, BookOpen, Search } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { PaginationLinks } from '@/components/pagination-links';
 import { PublicHomeLink } from '@/components/public-home-link';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatDate, namedValue, publicAssetUrl } from '@/lib/ecovillage';
@@ -24,12 +25,10 @@ export default function ContentIndex({
 
     return (
         <>
-            <Head title="Pusat Edukasi">
-                <meta
-                    name="description"
-                    content="Materi pengelolaan sampah organik dan anorganik yang memiliki sumber dan dapat ditelusuri."
-                />
-            </Head>
+            <Seo
+                title="Pusat Edukasi"
+                description="Materi pengelolaan sampah organik dan anorganik yang memiliki sumber dan dapat ditelusuri."
+            />
             <section className="relative isolate overflow-hidden">
                 <div
                     className="eco-container eco-section relative"

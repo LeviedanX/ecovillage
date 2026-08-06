@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     ArrowLeft,
     ArrowUpRight,
@@ -6,6 +6,7 @@ import {
     Clock3,
     UserRound,
 } from 'lucide-react';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 import { formatDate, namedValue, publicAssetUrl } from '@/lib/ecovillage';
 import type { EducationContent } from '@/types';
@@ -22,11 +23,28 @@ export default function ContentDetail({
 
     return (
         <>
-            <Head title={content.title}>
-                {content.excerpt && (
-                    <meta name="description" content={content.excerpt} />
-                )}
-            </Head>
+            <Seo
+                title={content.title}
+                description={
+                    content.excerpt ||
+                    `Materi edukasi pengelolaan sampah dari Eco Village: ${content.title}.`
+                }
+                image={cover}
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'Article',
+                    headline: content.title,
+                    description: content.excerpt ?? undefined,
+                    datePublished: content.published_at ?? undefined,
+                    author: content.author
+                        ? { '@type': 'Person', name: content.author }
+                        : undefined,
+                    publisher: {
+                        '@type': 'Organization',
+                        name: 'Eco Village',
+                    },
+                }}
+            />
             <article>
                 <header className="relative isolate overflow-hidden">
                     <div

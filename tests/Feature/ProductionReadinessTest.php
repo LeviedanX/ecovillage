@@ -29,6 +29,7 @@ class ProductionReadinessTest extends TestCase
             'session.same_site' => 'lax',
             'ecovillage.trusted_proxies' => '10.0.0.0/8',
             'ecovillage.auth.email_verification_required' => true,
+            'ecovillage.auth.require_two_factor_for_privileged' => true,
             'ecovillage.demo_accounts_enabled' => false,
             'ecovillage.demo_password' => 'kata-sandi-demo-yang-diganti',
             'ecovillage.uploads.disk' => 'local',

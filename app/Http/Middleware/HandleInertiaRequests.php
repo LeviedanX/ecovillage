@@ -47,6 +47,10 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // Dipakai komponen Seo untuk menyusun canonical dan og:url absolut.
+            // Diambil dari konfigurasi, bukan dari host request, agar tautan
+            // kanonik tidak dapat dibelokkan lewat header Host palsu.
+            'appUrl' => rtrim((string) config('app.url'), '/'),
             'auth' => [
                 'user' => $user === null ? null : [
                     ...$user->only(['id', 'name', 'email', 'email_verified_at', 'created_at']),

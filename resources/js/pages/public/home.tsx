@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     ArrowRight,
     BookOpen,
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { EmptyState } from '@/components/empty-state';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 import {
     formatNumber,
@@ -100,12 +101,19 @@ export default function Home({
 
     return (
         <>
-            <Head title="Beranda">
-                <meta
-                    name="description"
-                    content="EcoVillage.id membantu warga mengelola pengumpulan sampah, kegiatan lingkungan, Green Points, dan estimasi dampak secara transparan."
-                />
-            </Head>
+            <Seo
+                title="Beranda"
+                description="EcoVillage.id membantu warga mengelola pengumpulan sampah, kegiatan lingkungan, Green Points, dan estimasi dampak secara transparan."
+                structuredData={{
+                    '@context': 'https://schema.org',
+                    '@type': 'Organization',
+                    name: 'Eco Village',
+                    alternateName: 'EcoVillage.id',
+                    description:
+                        'Program pemberdayaan lingkungan berbasis komunitas: pengumpulan sampah, Green Points, EcoPore, dan EcoCycle.',
+                    areaServed: 'ID',
+                }}
+            />
 
             <section className="relative isolate overflow-hidden">
                 {/*

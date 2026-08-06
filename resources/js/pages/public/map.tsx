@@ -1,9 +1,9 @@
-import { Head } from '@inertiajs/react';
 import { MapPinned, Recycle, Scale } from 'lucide-react';
 import { MetricCard } from '@/components/metric-card';
 import { PublicHomeLink } from '@/components/public-home-link';
 import { PublicImpactMap } from '@/components/public-impact-map';
 import type { AggregateMapPoint } from '@/components/public-impact-map';
+import { Seo } from '@/components/seo';
 import { formatNumber } from '@/lib/ecovillage';
 
 type Props = {
@@ -34,16 +34,16 @@ export default function PublicMap({
 }: Props) {
     return (
         <>
-            <Head title={internal ? 'Peta Operasional' : 'Peta Dampak Publik'}>
-                <meta
-                    name="description"
-                    content={
-                        internal
-                            ? 'Peta tugas aktif sesuai kewenangan petugas.'
-                            : 'Peta agregat kontribusi sampah terverifikasi tanpa alamat rumah atau koordinat tepat warga.'
-                    }
-                />
-            </Head>
+            <Seo
+                title={internal ? 'Peta Operasional' : 'Peta Dampak Publik'}
+                description={
+                    internal
+                        ? 'Peta tugas aktif sesuai kewenangan petugas.'
+                        : 'Peta agregat kontribusi sampah terverifikasi tanpa alamat rumah atau koordinat tepat warga.'
+                }
+                // Peta operasional memuat titik tugas dan tidak boleh diindeks.
+                noindex={internal}
+            />
             <section className="relative isolate overflow-hidden">
                 <div
                     className="eco-container eco-section relative"

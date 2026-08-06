@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     ArrowRight,
     BadgeHelp,
@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { PublicHomeLink } from '@/components/public-home-link';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 
 type PageKey =
@@ -278,9 +279,11 @@ export default function PublicPage({
 
     return (
         <>
-            <Head title={content.eyebrow}>
-                <meta name="description" content={content.lead} />
-            </Head>
+            <Seo
+                title={content.eyebrow}
+                description={content.lead}
+                image={heroImage}
+            />
             <section className="relative isolate overflow-hidden">
                 <div className="eco-container relative grid gap-8 py-16 lg:grid-cols-[1fr_280px] lg:items-center lg:py-24">
                     <div className="relative">

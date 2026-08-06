@@ -7,6 +7,9 @@ x-app-environment: &app-environment
   # Service `web` adalah satu-satunya jalur menuju PHP-FPM pada jaringan
   # Compose, sehingga header X-Forwarded-* darinya dapat dipercaya.
   TRUSTED_PROXIES: ${TRUSTED_PROXIES:-*}
+  # Render sisi server berjalan sebagai service tersendiri karena image PHP
+  # tidak memuat Node. Bila service itu mati, Inertia jatuh ke render peramban.
+  INERTIA_SSR_URL: http://ssr:13714
   DB_CONNECTION: mysql
   DB_HOST: mysql
   DB_PORT: 3306
@@ -70,6 +73,27 @@ services:
       - artisan
       - schedule:work
       - --no-interaction
+
+  # Pada pengembangan, SSR dilayani server Vite sehingga service ini hanya
+  # dipakai ketika menguji perilaku produksi. Bundle-nya dibangun
+  # `npm run build:ssr` dan bersifat mandiri, tanpa node_modules.
+  ssr:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: ssr-production
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - node -e "fetch('http://127.0.0.1:13714/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   vite:
     <<: *app-common

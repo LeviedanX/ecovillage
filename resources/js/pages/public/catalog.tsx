@@ -1,8 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { Coins, PackageOpen, Search, ShoppingBag } from 'lucide-react';
 import { EmptyState } from '@/components/empty-state';
 import { PaginationLinks } from '@/components/pagination-links';
 import { PublicHomeLink } from '@/components/public-home-link';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatPoints, namedValue } from '@/lib/ecovillage';
@@ -22,7 +23,10 @@ export default function Catalog({
 
     return (
         <>
-            <Head title="Katalog Produk" />
+            <Seo
+                title="Katalog Produk"
+                description="Produk hasil program EcoPore dan EcoCycle yang dapat ditukar dengan Green Points selama stok tersedia."
+            />
             <section className="relative isolate overflow-hidden">
                 <div
                     className="eco-container eco-section relative"

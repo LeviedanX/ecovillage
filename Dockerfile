@@ -91,7 +91,10 @@ ENV NODE_ENV=production \
     VITE_APP_NAME=${VITE_APP_NAME} \
     VITE_MAP_STYLE_URL=${VITE_MAP_STYLE_URL}
 
-RUN npm run build \
+# `build:ssr` menghasilkan aset peramban sekaligus bundle render sisi server.
+# Tanpa bundle itu, Inertia melewati SSR dan permintaan pertama kembali
+# mengirim cangkang kosong kepada crawler.
+RUN npm run build:ssr \
     && composer install \
         --no-dev \
         --no-interaction \
@@ -114,6 +117,22 @@ RUN chmod -R ug+rwX bootstrap/cache storage
 EXPOSE 9000
 
 CMD ["php-fpm", "-F"]
+
+# Proses render sisi server berdiri sendiri: image PHP-FPM tidak memuat Node,
+# dan bundle SSR sudah mandiri sehingga tidak memerlukan node_modules.
+FROM node:${NODE_VERSION}-bookworm-slim AS ssr-production
+
+ENV NODE_ENV=production \
+    TZ=Asia/Jakarta
+
+WORKDIR /var/www/html
+
+COPY --from=build /var/www/html/bootstrap/ssr ./bootstrap/ssr
+
+EXPOSE 13714
+
+# Node menerima sinyal berhenti secara langsung, tanpa shell perantara.
+CMD ["node", "bootstrap/ssr/ssr.js"]
 
 FROM nginx:1.28-alpine AS nginx-production
 

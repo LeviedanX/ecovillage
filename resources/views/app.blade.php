@@ -5,9 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#237a4b">
         <meta name="application-name" content="EcoVillage.id">
-        <meta property="og:image" content="{{ asset('icon/logo.png') }}">
-        <meta name="twitter:card" content="summary">
-        <meta name="twitter:image" content="{{ asset('icon/logo.png') }}">
+        {{--
+            Metadata yang dapat diturunkan server ditulis di sini agar tetap ada
+            meski proses SSR sedang mati. Judul, deskripsi, dan data terstruktur
+            per halaman ditetapkan komponen `Seo` karena bergantung pada isi
+            halaman; keduanya tidak boleh saling menggandakan.
+
+            URL kanonik dibangun dari APP_URL, bukan dari host request, supaya
+            tidak dapat dibelokkan lewat header Host palsu.
+        --}}
+        @php($canonical = rtrim(config('app.url'), '/').(request()->path() === '/' ? '' : '/'.request()->path()))
+        <link rel="canonical" href="{{ $canonical }}">
+        <meta property="og:url" content="{{ $canonical }}">
+        <meta property="og:type" content="website">
+        <meta property="og:site_name" content="{{ config('app.name') }}">
+        <meta property="og:locale" content="id_ID">
         <link rel="manifest" href="/build/manifest.webmanifest">
 
         {{--

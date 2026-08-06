@@ -8,9 +8,23 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+    /*
+     * Bundle SSR dibuat mandiri. Secara baku Vite membiarkan dependency tetap
+     * eksternal, sehingga berkas hasil build menuntut `node_modules` ada di
+     * samping proses dan React ter-resolve ke build development yang jauh
+     * lebih lambat. Dengan seluruh dependency ikut dibundel, image SSR cukup
+     * berisi Node dan satu berkas, dan React yang terpakai dipastikan build
+     * production.
+     */
+    ssr: {
+        noExternal: true,
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
+            // Bundle SSR dibangun `npm run build:ssr` ke bootstrap/ssr, lalu
+            // dijalankan `php artisan inertia:start-ssr` di production.
+            ssr: 'resources/js/ssr.tsx',
             refresh: true,
             fonts: [
                 // Body / UI face.

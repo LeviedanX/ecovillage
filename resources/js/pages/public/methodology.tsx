@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     AlertTriangle,
     ArrowRight,
@@ -8,17 +8,16 @@ import {
     Scale,
     ShieldCheck,
 } from 'lucide-react';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 
 export default function Methodology() {
     return (
         <>
-            <Head title="Metodologi Estimasi Dampak">
-                <meta
-                    name="description"
-                    content="Ruang lingkup, formula, versi faktor, dan batas metodologi Estimasi Dampak Lingkungan EcoVillage.id."
-                />
-            </Head>
+            <Seo
+                title="Metodologi Estimasi Dampak"
+                description="Ruang lingkup, formula, versi faktor, dan batas metodologi Estimasi Dampak Lingkungan EcoVillage.id."
+            />
             <section className="relative isolate overflow-hidden">
                 <div
                     className="eco-container eco-section relative"

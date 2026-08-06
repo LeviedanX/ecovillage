@@ -40,6 +40,8 @@ class CheckProductionReadiness extends Command
         $this->checkDemoData();
         $this->checkStorage();
         $this->checkDatabase();
+        $this->checkRendering();
+        $this->checkPrivilegedTwoFactor();
 
         $this->table(['Status', 'Pemeriksaan', 'Keterangan'], $this->rows);
 
@@ -186,6 +188,33 @@ class CheckProductionReadiness extends Command
         if ($disk === 'local' && app()->isProduction()) {
             $this->attention('PRIVATE_UPLOAD_DISK', 'Disk lokal bersifat ephemeral dan tidak dibagi antar-replica; pakai s3 untuk deployment multi-instance.');
         }
+    }
+
+    /**
+     * Tanpa render sisi server, permintaan pertama hanya berisi cangkang
+     * kosong: crawler dan pratinjau tautan tidak melihat apa pun, dan pengguna
+     * menunggu JavaScript sebelum ada yang tampil.
+     */
+    private function checkRendering(): void
+    {
+        if (! config('inertia.ssr.enabled')) {
+            $this->attention('Inertia SSR', 'Nonaktif. Halaman publik tidak akan terbaca crawler maupun pratinjau tautan.');
+
+            return;
+        }
+
+        $bundle = (string) config('inertia.ssr.bundle');
+
+        is_file($bundle)
+            ? $this->ok('Inertia SSR', 'Aktif, bundle tersedia')
+            : $this->bad('Inertia SSR', "Aktif tetapi bundle [{$bundle}] tidak ada. Jalankan `npm run build:ssr`.");
+    }
+
+    private function checkPrivilegedTwoFactor(): void
+    {
+        config('ecovillage.auth.require_two_factor_for_privileged')
+            ? $this->ok('2FA role istimewa', 'Diwajibkan')
+            : $this->bad('2FA role istimewa', 'Tidak diwajibkan. Super admin dan pengelola dapat membuka alamat serta koordinat warga hanya dengan kata sandi.');
     }
 
     private function checkDatabase(): void

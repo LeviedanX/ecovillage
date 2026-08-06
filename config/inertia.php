@@ -16,10 +16,19 @@ return [
     */
 
     'ssr' => [
-        'enabled' => true,
-        'url' => 'http://127.0.0.1:13714',
-        // 'bundle' => base_path('bootstrap/ssr/ssr.mjs'),
+        'enabled' => env('INERTIA_SSR_ENABLED', true),
+        'url' => env('INERTIA_SSR_URL', 'http://127.0.0.1:13714'),
 
+        /*
+         * Dengan bundle ditetapkan, Inertia melewati SSR ketika berkasnya
+         * belum dibangun alih-alih menembak proses yang tidak ada pada setiap
+         * request. Bila proses SSR mati, `HttpGateway` juga mengembalikan null
+         * dan aplikasi jatuh ke render sisi peramban; halaman tetap berfungsi,
+         * hanya kehilangan HTML awal untuk crawler.
+         */
+        // `package.json` memakai `"type": "module"`, sehingga Vite menamai
+        // keluaran SSR `ssr.js` dan Node tetap memuatnya sebagai ES module.
+        'bundle' => base_path('bootstrap/ssr/ssr.js'),
     ],
 
     /*

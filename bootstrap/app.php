@@ -37,6 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // baru berjalan setelah callback middleware dievaluasi).
 
         $middleware->web(append: [
+            // Batas laju menyeluruh; limiter `web` didefinisikan pada
+            // FortifyServiceProvider. Ditaruh paling awal agar permintaan
+            // berlebih ditolak sebelum menyentuh database.
+            'throttle:web',
             SecurityHeaders::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

@@ -33,7 +33,15 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
-            'serve' => true,
+            /*
+             * Disk ini menyimpan bukti foto pengumpulan warga. Dengan `serve`
+             * aktif, Laravel mendaftarkan route GET dan PUT `/storage/{path}`
+             * yang tidak pernah dipakai aplikasi: berkas privat disajikan
+             * `CollectionController@photo` lewat signed URL berumur pendek.
+             * Route bawaan itu terlindungi tanda tangan, tetapi permukaan
+             * serangan yang tidak terpakai lebih baik ditutup.
+             */
+            'serve' => false,
             'throw' => false,
             'report' => false,
         ],

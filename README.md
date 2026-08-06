@@ -142,6 +142,18 @@ Dua template environment tersedia dan keduanya bebas secret:
 
 Jangan commit `.env`, dan jangan menyalin `.env` pengembangan ke server: nilainya memakai HTTP, database lokal, akun demo aktif, dan mailer yang tidak mengirim apa pun. Kelengkapan kedua template dijaga `EnvironmentTemplateTest`, sehingga variabel baru yang dibaca `config/` tidak dapat lolos tanpa didokumentasikan.
 
+## Render sisi server dan SEO
+
+Halaman publik dirender di server sebelum dikirim. Tanpa itu, permintaan pertama hanya berisi cangkang kosong: crawler non-Google dan pratinjau tautan WhatsApp, Facebook, maupun Telegram tidak menjalankan JavaScript, dan pengguna menatap layar kosong sampai bundle selesai dijalankan.
+
+- Bundle SSR dibangun `npm run build:ssr` ke `bootstrap/ssr/ssr.js` dan bersifat mandiri, tanpa `node_modules`.
+- Prosesnya berjalan sebagai service tersendiri (`ssr` pada Compose, target image `ssr-production`) karena image PHP tidak memuat Node. Untuk pengembangan, `php artisan inertia:start-ssr` sudah cukup; server Vite juga menyediakan SSR saat `npm run dev` berjalan.
+- Bila proses SSR mati, Inertia otomatis jatuh ke render peramban. Halaman tetap berfungsi, hanya kehilangan HTML awal untuk crawler. `ecovillage:check-production` menandai bundle yang belum dibangun sebagai kegagalan rilis.
+- `sitemap.xml` dan `robots.txt` dilayani aplikasi, dibangun dari konten yang benar-benar terbit, dan menutup seluruh area terautentikasi.
+- Judul, deskripsi, Open Graph, Twitter card, dan JSON-LD ditetapkan per halaman lewat komponen `Seo`. URL kanonik dan `og:url` dirender layout dari `APP_URL`, sehingga tetap ada meski SSR sedang mati dan tidak dapat dibelokkan lewat header Host palsu.
+
+Suite Playwright menjalankan proses SSR yang sama dengan production, lalu memeriksa HTML mentah tanpa menjalankan JavaScript sama sekali — persis seperti yang diterima crawler.
+
 ## Panel pengelolaan
 
 | Halaman | Untuk | Dibatasi |
@@ -261,11 +273,13 @@ Keduanya keluar dengan kode selain nol bila ada baris `GAGAL`, sehingga dapat di
 
 ### 4. Bangun dan verifikasi image
 
-Langkah ini memerlukan host dengan Docker Engine.
+Langkah ini memerlukan host dengan Docker Engine. Tiga image dibangun dari commit yang sama: aplikasi, web, dan render sisi server.
 
 ```bash
-docker build --target production -t registry.example/ecovillage/app:$(git rev-parse --short HEAD) .
-docker build --target nginx-production -t registry.example/ecovillage/web:$(git rev-parse --short HEAD) .
+REV=$(git rev-parse --short HEAD)
+docker build --target production      -t registry.example/ecovillage/app:$REV .
+docker build --target nginx-production -t registry.example/ecovillage/web:$REV .
+docker build --target ssr-production   -t registry.example/ecovillage/ssr:$REV .
 docker compose config >/dev/null
 docker run --rm -v "$PWD/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro" nginx:1.28-alpine nginx -t
 ```

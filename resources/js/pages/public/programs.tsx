@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     ArrowRight,
     CalendarDays,
@@ -10,6 +10,7 @@ import {
 import { EmptyState } from '@/components/empty-state';
 import { PaginationLinks } from '@/components/pagination-links';
 import { PublicHomeLink } from '@/components/public-home-link';
+import { Seo } from '@/components/seo';
 import { Button } from '@/components/ui/button';
 import { formatDate, formatNumber, publicAssetUrl } from '@/lib/ecovillage';
 import { cn } from '@/lib/utils';
@@ -33,7 +34,10 @@ export default function Programs({
 
     return (
         <>
-            <Head title="Program Eco Village" />
+            <Seo
+                title="Program Eco Village"
+                description="Jadwal, kuota, dan lokasi kegiatan EcoPore dan EcoCycle yang terbuka bagi warga."
+            />
             <section className="relative isolate overflow-hidden">
                 <div
                     className="eco-container eco-section relative"

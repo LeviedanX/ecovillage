@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process';
 
 import { e2eAppEnv } from './env';
+import { stopSsrServer } from './ssr-server';
 import { restoreViteHotFile } from './vite-hot';
 
 export default function globalTeardown() {
@@ -20,5 +21,6 @@ export default function globalTeardown() {
         // Sesi `npm run dev` pengembang harus kembali seperti sebelum suite
         // berjalan, termasuk ketika pembersihan database gagal.
         restoreViteHotFile();
+        stopSsrServer();
     }
 }

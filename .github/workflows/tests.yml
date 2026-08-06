@@ -36,3 +36,15 @@ jobs:
 
       - name: Run CI Checks
         run: composer ci:check
+
+      # Advisory dependency diperiksa pada setiap perubahan, bukan hanya saat
+      # ada yang teringat menjalankannya secara manual.
+      - name: Audit dependency PHP
+        run: composer audit --no-interaction
+
+      - name: Audit dependency JavaScript
+        run: npm audit --audit-level=high --omit=dev
+
+      # Konsistensi Nginx, php.ini, Dockerfile, dan compose ikut dijaga di CI.
+      - name: Periksa konfigurasi deployment
+        run: php artisan ecovillage:check-deploy-config

@@ -30,6 +30,17 @@ return [
             env('NEUTRAL_REGISTRATION_RESPONSE', true),
             FILTER_VALIDATE_BOOL,
         ),
+
+        /*
+         * Super admin dan pengelola memegang akses ke alamat dan koordinat
+         * warga. Selama flag ini aktif, menu pengelolaan tertutup sampai akun
+         * tersebut memasang autentikasi dua faktor. Matikan hanya pada
+         * environment demo atau pengujian otomatis.
+         */
+        'require_two_factor_for_privileged' => filter_var(
+            env('REQUIRE_TWO_FACTOR_FOR_PRIVILEGED', true),
+            FILTER_VALIDATE_BOOL,
+        ),
     ],
 
     'csp' => [

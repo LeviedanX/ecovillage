@@ -105,6 +105,23 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureRateLimiting(): void
     {
+        /*
+         * Batas menyeluruh untuk lapisan web. Tanpa ini, hanya endpoint
+         * tertentu yang terlindungi, sementara halaman publik seperti peta
+         * yang menjalankan query agregasi dapat dihajar terus-menerus dengan
+         * satu skrip sederhana.
+         *
+         * Ambangnya sengaja longgar: pengguna sungguhan, termasuk beberapa
+         * warga di balik satu sambungan kantor desa, tidak akan menyentuhnya.
+         * Kunci memakai id pengguna bila sudah masuk, agar satu IP bersama
+         * tidak membuat mereka saling menjatuhkan.
+         */
+        RateLimiter::for('web', function (Request $request) {
+            return Limit::perMinute(240)->by(
+                $request->user()?->getAuthIdentifier() ?? $request->ip(),
+            );
+        });
+
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });

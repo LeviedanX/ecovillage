@@ -4,6 +4,8 @@
  */
 export const e2eDatabase = process.env.E2E_DB_DATABASE ?? 'ecovillage_id_e2e';
 
+export const e2eSsrUrl = process.env.E2E_SSR_URL ?? 'http://127.0.0.1:13714';
+
 export const e2eAppEnv = {
     APP_ENV: 'testing',
     APP_DEBUG: 'false',
@@ -18,8 +20,12 @@ export const e2eAppEnv = {
     DB_PASSWORD: process.env.E2E_DB_PASSWORD ?? '',
     DB_URL: '',
     DEMO_ACCOUNTS_ENABLED: 'true',
+    // Akun demo tidak memasang 2FA; penegakannya diuji terpisah oleh PHPUnit.
+    REQUIRE_TWO_FACTOR_FOR_PRIVILEGED: 'false',
     DEMO_USER_PASSWORD: 'password',
     MAIL_MAILER: 'array',
     QUEUE_CONNECTION: 'sync',
     SESSION_DRIVER: 'file',
+    INERTIA_SSR_ENABLED: 'true',
+    INERTIA_SSR_URL: e2eSsrUrl,
 };
